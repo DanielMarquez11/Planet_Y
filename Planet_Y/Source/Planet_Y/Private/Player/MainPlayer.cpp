@@ -9,15 +9,34 @@ AMainPlayer::AMainPlayer()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	// Character Rotation
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false; // Makes sure the player doesnt rotate when the camera rotates
 	bUseControllerRotationRoll = false;
 
+	// Capsule Component
 	GetCapsuleComponent()->InitCapsuleSize(35.f, 60.0f);
+
+	// Jumping
+	JumpMaxHoldTime = 0.1f;
+	JumpMaxCount = 2;
 	
 	// Movement Component
 	GetCharacterMovement()->bOrientRotationToMovement = true; // Makes the player rotate to the way its moving
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f); // How fast the player rotates
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 600.0f, 0.0f); // How fast the player rotates
+	GetCharacterMovement()->bUseControllerDesiredRotation = true;
+
+	GetCharacterMovement()->GravityScale = 2.5f;
+	GetCharacterMovement()->MaxAcceleration = 2300.0f;
+	GetCharacterMovement()->BrakingFrictionFactor = 1.0f;
+	GetCharacterMovement()->bUseSeparateBrakingFriction = true;
+
+	GetCharacterMovement()->MaxWalkSpeed = 850.0f;
+	GetCharacterMovement()->BrakingDecelerationWalking = 4000.0f;
+
+	GetCharacterMovement()->JumpZVelocity = 800.0f;
+	GetCharacterMovement()->BrakingDecelerationFalling = 100.0f;
+	GetCharacterMovement()->AirControl = 0.5f;
 
 	// Camera Boom
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -76,12 +95,22 @@ void AMainPlayer::Look(const FInputActionValue& Value)
 
 void AMainPlayer::StartJump()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Red, "Start Jump");
+	if (JumpCurrentCount == 1)
+	{
+		const FVector PlayerVelocity = (GetCharacterMovement()->Velocity / 10) * 4.0f;
+		GetCharacterMovement()->Velocity = PlayerVelocity + (GetLastMovementInputVector() * 680.0f);
+		
+		Jump();
+	}
+	else
+	{
+		Jump();
+	}
 }
 
 void AMainPlayer::StopJump()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Red, "Stop Jump");
+	StopJumping();
 }
 
 void AMainPlayer::Dash()
