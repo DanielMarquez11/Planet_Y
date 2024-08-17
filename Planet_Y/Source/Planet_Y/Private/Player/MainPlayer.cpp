@@ -42,7 +42,7 @@ AMainPlayer::AMainPlayer()
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
 
-	CameraBoom->TargetArmLength = 300.0f; // Range of camera
+	CameraBoom->TargetArmLength = 450.0f; // Range of camera
 	CameraBoom->SocketOffset =FVector(0, 0, 40.0f);
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
 
