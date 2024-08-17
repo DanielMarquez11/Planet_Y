@@ -4,6 +4,8 @@
 #include "GameFramework/Character.h"
 #include "MainPlayer.generated.h"
 
+class USpringArmComponent;
+class UCameraComponent;
 struct FInputActionValue;
 
 UCLASS()
@@ -19,7 +21,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	// Base Movement
-	void Move(const FInputActionValue& InputActionValue) const;
+	void Move(const FInputActionValue& InputActionValue);
+	void Look(const FInputActionValue& Value);
 
 	void StartJump();
 	void StopJump();
@@ -28,5 +31,10 @@ public:
 	
 private:
 
-	
+	// Components
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	USpringArmComponent* CameraBoom;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	UCameraComponent* FollowCamera;
 };

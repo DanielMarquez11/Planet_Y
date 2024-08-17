@@ -30,6 +30,9 @@ protected:
 	TObjectPtr<UInputAction> MoveAction;
 
 	UPROPERTY(EditAnywhere, Category = "Input")
+	TObjectPtr<UInputAction> LookAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<UInputAction> JumpAction;
 
 	UPROPERTY(EditAnywhere, Category = "Input")
@@ -39,6 +42,8 @@ private:
 
 	// Input Handlers
 	void HandleMove(const FInputActionValue& InputActionValue);
+	void HandleLook(const FInputActionValue& InputActionValue);
+	
 	void HandleStartJump();
 	void HandleStopJump();
 	void HandleDash();

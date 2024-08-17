@@ -30,6 +30,7 @@ void AMainPlayerController::SetupInputComponent()
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
 	{
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AMainPlayerController::HandleMove);
+		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AMainPlayerController::HandleLook);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AMainPlayerController::HandleStartJump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &AMainPlayerController::HandleStopJump);
 		EnhancedInputComponent->BindAction(DashAction, ETriggerEvent::Triggered, this, &AMainPlayerController::HandleDash);
@@ -39,6 +40,11 @@ void AMainPlayerController::SetupInputComponent()
 void AMainPlayerController::HandleMove(const FInputActionValue& InputActionValue)
 {
 	PlayerRef->Move(InputActionValue);
+}
+
+void AMainPlayerController::HandleLook(const FInputActionValue& InputActionValue)
+{
+	PlayerRef->Look(InputActionValue);
 }
 
 void AMainPlayerController::HandleStartJump()
