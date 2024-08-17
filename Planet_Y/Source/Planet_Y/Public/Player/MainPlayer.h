@@ -4,6 +4,8 @@
 #include "GameFramework/Character.h"
 #include "MainPlayer.generated.h"
 
+struct FInputActionValue;
+
 UCLASS()
 class PLANET_Y_API AMainPlayer : public ACharacter
 {
@@ -13,10 +15,18 @@ public:
 
 	AMainPlayer();
 
-	virtual void Tick(float DeltaTime) override;
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-protected:
-
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
+
+	// Base Movement
+	void Move(const FInputActionValue& InputActionValue) const;
+
+	void StartJump();
+	void StopJump();
+
+	void Dash();
+	
+private:
+
+	
 };

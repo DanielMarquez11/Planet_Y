@@ -39,7 +39,10 @@ private:
 
 	// Input Handlers
 	void HandleMove(const FInputActionValue& InputActionValue);
-	void HandleMove();
+	void HandleStartJump();
+	void HandleStopJump();
 	void HandleDash();
+
+	AMainPlayer* PlayerRef;
 };
 

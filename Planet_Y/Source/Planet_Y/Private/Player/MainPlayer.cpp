@@ -15,8 +15,24 @@ void AMainPlayer::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void AMainPlayer::Move(const FInputActionValue& InputActionValue) const
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Red, "Move");
 }
+
+void AMainPlayer::StartJump()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Red, "Start Jump");
+}
+
+void AMainPlayer::StopJump()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Red, "Stop Jump");
+}
+
+void AMainPlayer::Dash()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Red, "Dash");
+}
+
 
