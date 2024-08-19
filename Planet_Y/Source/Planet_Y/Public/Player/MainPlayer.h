@@ -14,7 +14,8 @@ class PLANET_Y_API AMainPlayer : public ACharacter
 	GENERATED_BODY()
 
 public:
-
+	
+	// Base Functions
 	AMainPlayer();
 
 	virtual void BeginPlay() override;
@@ -23,10 +24,11 @@ public:
 	// Base Movement
 	void Move(const FInputActionValue& InputActionValue);
 	void Look(const FInputActionValue& Value);
-	void Landed(const FHitResult& Hit) override;
-
+	
 	void StartJump();
 	void StopJump();
+
+	virtual void Landed(const FHitResult& Hit) override;
 
 	// Dash
 	void Dash();

@@ -5,6 +5,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
+#pragma region Base Functions
 AMainPlayer::AMainPlayer()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -73,7 +74,9 @@ void AMainPlayer::Tick(float DeltaTime)
 		SetActorLocation(DashUpdateLocation);
 	}
 }
+#pragma endregion Base Functions
 
+#pragma region Base Movement
 void AMainPlayer::Move(const FInputActionValue& Value)
 {
 	const FVector2D MovementVector = Value.Get<FVector2D>();
@@ -131,7 +134,9 @@ void AMainPlayer::Landed(const FHitResult& Hit)
 
 	bHasAirDashed = false;
 }
+#pragma endregion Base Movement
 
+#pragma region Dash
 void AMainPlayer::Dash()
 {
 	if (!bIsDashing && bCanDash)
@@ -162,9 +167,7 @@ void AMainPlayer::Dash()
 			DashEndPoint = GetActorLocation() + (GetLastMovementInputVector().GetSafeNormal() * DashDistance);
 			DashDirection = GetLastMovementInputVector();
 		}
-
 		
-
 		FTimerHandle DashTimer;
 		FTimerHandle DashCooldownTimer;
 		
@@ -199,5 +202,5 @@ void AMainPlayer::CheckDashCollision()
 		StopDash();
 	}
 }
-
+#pragma endregion Dash
 

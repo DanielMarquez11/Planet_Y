@@ -48,6 +48,7 @@ private:
 	void HandleStopJump();
 	void HandleDash();
 
+	UPROPERTY()
 	AMainPlayer* PlayerRef;
 };
 
