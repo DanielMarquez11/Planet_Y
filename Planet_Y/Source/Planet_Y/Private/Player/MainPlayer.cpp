@@ -61,6 +61,15 @@ void AMainPlayer::BeginPlay()
 void AMainPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	// Dash
+	if (bIsDashing)
+	{
+		float LerpAlpha = (DashTimeElapsed + DeltaTime) / DashTime;
+		FVector DashUpdateLocation = FMath::Lerp(GetActorLocation(), DashEndPoint, LerpAlpha);
+
+		SetActorLocation(DashUpdateLocation);
+	}
 }
 
 void AMainPlayer::Move(const FInputActionValue& Value)
@@ -98,7 +107,7 @@ void AMainPlayer::StartJump()
 	if (JumpCurrentCount == 1)
 	{
 		const FVector PlayerVelocity = (GetCharacterMovement()->Velocity / 10) * 4.0f;
-		GetCharacterMovement()->Velocity = PlayerVelocity + (GetLastMovementInputVector() * 750.0f);
+		GetCharacterMovement()->Velocity = PlayerVelocity + (GetLastMovementInputVector().GetSafeNormal() * 750.0f);
 		
 		Jump();
 
@@ -117,7 +126,51 @@ void AMainPlayer::StopJump()
 
 void AMainPlayer::Dash()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Red, "Dash");
+	if (!bIsDashing && bCanDash)
+	{
+		bIsDashing = true;
+		bCanDash = false;
+
+		DashTimeElapsed = 0.0f;
+
+		GetCharacterMovement()->Velocity = FVector(0, 0, 0);
+		GetCharacterMovement()->GravityScale = 0;
+		
+		DashEndPoint = GetActorLocation() + (GetLastMovementInputVector().GetSafeNormal() * DashDistance);
+
+		DashDirection = GetLastMovementInputVector();
+
+		FTimerHandle DashTimer;
+		FTimerHandle DashCooldownTimer;
+		
+		GetWorld()->GetTimerManager().SetTimer(DashTimer, this, &AMainPlayer::StopDash, DashTime, false);
+		GetWorld()->GetTimerManager().SetTimer(DashCooldownTimer, this, &AMainPlayer::ResetDashCooldown, DashCooldown, false);
+	}
+}
+
+void AMainPlayer::StopDash()
+{
+	GetCharacterMovement()->GravityScale = 2.5f;
+	GetCharacterMovement()->Velocity = DashDirection * 750.0f;
+	
+	bIsDashing = false;
+}
+
+void AMainPlayer::ResetDashCooldown()
+{
+	bCanDash = true;
+}
+
+void AMainPlayer::CheckDashCollision()
+{
+	FHitResult Hit;
+	
+	GetWorld()->LineTraceSingleByChannel(Hit, GetActorLocation(), DashEndPoint, ECC_Visibility);
+
+	if (Hit)
+	{
+		
+	}
 }
 
 

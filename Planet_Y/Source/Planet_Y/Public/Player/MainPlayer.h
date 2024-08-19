@@ -27,7 +27,14 @@ public:
 	void StartJump();
 	void StopJump();
 
+	// Dash
 	void Dash();
+	void StopDash();
+	void ResetDashCooldown();
+	void CheckDashCollision();
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsDashing = false;
 	
 private:
 
@@ -40,4 +47,20 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 	UAnimMontage* DoubleJumpMontage;
+
+	// Dash
+	UPROPERTY(EditAnywhere, Category = "Dash")
+	float DashDistance;
+
+	UPROPERTY(EditAnywhere, Category = "Dash")
+	float DashTime;
+
+	UPROPERTY(EditAnywhere, Category = "Dash")
+	float DashCooldown;
+
+	FVector DashEndPoint;
+	FVector DashDirection;
+	float DashTimeElapsed;
+	
+	bool bCanDash = true;
 };
