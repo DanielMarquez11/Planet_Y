@@ -125,21 +125,45 @@ void AMainPlayer::StopJump()
 	StopJumping();
 }
 
+void AMainPlayer::Landed(const FHitResult& Hit)
+{
+	Super::Landed(Hit);
+
+	bHasAirDashed = false;
+}
+
 void AMainPlayer::Dash()
 {
 	if (!bIsDashing && bCanDash)
 	{
+		const bool bIsInAir = !GetCharacterMovement()->IsMovingOnGround();
+
+		if (bIsInAir && bHasAirDashed)
+		{
+			return;
+		}
+		
 		bIsDashing = true;
 		bCanDash = false;
+		bHasAirDashed = bIsInAir;
 
 		DashTimeElapsed = 0.0f;
 
 		GetCharacterMovement()->Velocity = FVector(0, 0, 0);
 		GetCharacterMovement()->GravityScale = 0;
-		
-		DashEndPoint = GetActorLocation() + (GetLastMovementInputVector().GetSafeNormal() * DashDistance);
 
-		DashDirection = GetLastMovementInputVector();
+		if (GetLastMovementInputVector() == FVector(0, 0, 0))
+		{
+			DashEndPoint = GetActorLocation() + (GetActorForwardVector().GetSafeNormal() * DashDistance);
+			DashDirection = GetActorForwardVector();
+		}
+		else
+		{
+			DashEndPoint = GetActorLocation() + (GetLastMovementInputVector().GetSafeNormal() * DashDistance);
+			DashDirection = GetLastMovementInputVector();
+		}
+
+		
 
 		FTimerHandle DashTimer;
 		FTimerHandle DashCooldownTimer;

@@ -23,6 +23,7 @@ public:
 	// Base Movement
 	void Move(const FInputActionValue& InputActionValue);
 	void Look(const FInputActionValue& Value);
+	void Landed(const FHitResult& Hit) override;
 
 	void StartJump();
 	void StopJump();
@@ -63,4 +64,5 @@ private:
 	float DashTimeElapsed;
 	
 	bool bCanDash = true;
+	bool bHasAirDashed = false;
 };
