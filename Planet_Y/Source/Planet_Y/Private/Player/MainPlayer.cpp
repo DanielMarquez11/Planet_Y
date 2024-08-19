@@ -65,17 +65,18 @@ void AMainPlayer::Tick(float DeltaTime)
 	// Dash
 	if (bIsDashing)
 	{
-		float LerpAlpha = (DashTimeElapsed + DeltaTime) / DashTime;
-		FVector DashUpdateLocation = FMath::Lerp(GetActorLocation(), DashEndPoint, LerpAlpha);
+		const float LerpAlpha = (DashTimeElapsed + DeltaTime) / DashTime;
+		const FVector DashUpdateLocation = FMath::Lerp(GetActorLocation(), DashEndPoint, LerpAlpha);
 
+		CheckDashCollision();
+		
 		SetActorLocation(DashUpdateLocation);
 	}
 }
 
 void AMainPlayer::Move(const FInputActionValue& Value)
 {
-	// input is a Vector2D
-	FVector2D MovementVector = Value.Get<FVector2D>();
+	const FVector2D MovementVector = Value.Get<FVector2D>();
 
 	if (Controller != nullptr)
 	{
@@ -93,7 +94,7 @@ void AMainPlayer::Move(const FInputActionValue& Value)
 
 void AMainPlayer::Look(const FInputActionValue& Value)
 {
-	FVector2D LookAxisVector = Value.Get<FVector2D>();
+	const FVector2D LookAxisVector = Value.Get<FVector2D>();
 
 	if (Controller != nullptr)
 	{
@@ -163,13 +164,15 @@ void AMainPlayer::ResetDashCooldown()
 
 void AMainPlayer::CheckDashCollision()
 {
-	FHitResult Hit;
-	
-	GetWorld()->LineTraceSingleByChannel(Hit, GetActorLocation(), DashEndPoint, ECC_Visibility);
+	const FVector TraceStartLocation = GetActorLocation();
+	const FVector ForwardVector = GetLastMovementInputVector().GetSafeNormal();
+	const FVector TraceLength = TraceStartLocation + (ForwardVector * 100);
 
-	if (Hit)
+	FHitResult MiddleHitResult;
+	
+	if (GetWorld()->LineTraceSingleByChannel(MiddleHitResult, TraceStartLocation, TraceLength, ECC_Visibility))
 	{
-		
+		StopDash();
 	}
 }
 
