@@ -37,4 +37,7 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FollowCamera;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+	UAnimMontage* DoubleJumpMontage;
 };

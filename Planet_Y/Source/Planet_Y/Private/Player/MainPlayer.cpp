@@ -43,7 +43,7 @@ AMainPlayer::AMainPlayer()
 	CameraBoom->SetupAttachment(RootComponent);
 
 	CameraBoom->TargetArmLength = 450.0f; // Range of camera
-	CameraBoom->SocketOffset =FVector(0, 0, 40.0f);
+	CameraBoom->SocketOffset =FVector(0, 0, 45.0f);
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
 
 	// Camera
@@ -98,9 +98,11 @@ void AMainPlayer::StartJump()
 	if (JumpCurrentCount == 1)
 	{
 		const FVector PlayerVelocity = (GetCharacterMovement()->Velocity / 10) * 4.0f;
-		GetCharacterMovement()->Velocity = PlayerVelocity + (GetLastMovementInputVector() * 680.0f);
+		GetCharacterMovement()->Velocity = PlayerVelocity + (GetLastMovementInputVector() * 750.0f);
 		
 		Jump();
+
+		PlayAnimMontage(DoubleJumpMontage);
 	}
 	else
 	{
