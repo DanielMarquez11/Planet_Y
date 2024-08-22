@@ -32,6 +32,7 @@ public:
 
 	// Dash
 	void Dash();
+	void DashUpdate();
 	void StopDash();
 	void ResetDashCooldown();
 	void CheckDashCollision();
@@ -39,8 +40,23 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	bool bIsDashing = false;
 
+	// Wall Running
+	bool WallRunMovement(const FVector& Start, const FVector& End, float Direction);
+	void WallRunUpdate();
+
+	void StartWallRun(bool Right, bool Left);
+	void EndWallRun(float WallRunCooldown);
+
+	void WallRunJump();
+	
+	void SupressWallRun(float Cooldown);
+	void ResetWallRunSupress();
+	
+	bool IsValidWallVector(const FVector& InVector) const;
+
 	// Aim Down Sight
 	void AimDownSight();
+	void AimDownSightUpdate();
 	void StopAiming();
 
 	UPROPERTY(BlueprintReadOnly)
@@ -58,9 +74,24 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 	UAnimMontage* DoubleJumpMontage;
 
-	// Base Movement
+	// Base Movement and default values
+	UPROPERTY(EditAnywhere, Category = "DefaultMovementValues")
+	float BaseGravity = 2.5f;
+
+	UPROPERTY(EditAnywhere, Category = "DefaultMovementValues")
+	float PlayerRotationRate = 600.0f;
+
+	UPROPERTY(EditAnywhere, Category = "DefaultMovementValues")
 	float DefaultPlayerSpeed = 850.0f;
+
+	UPROPERTY(EditAnywhere, Category = "DefaultMovementValues")
 	float AimingPlayerSpeed = 450.0f;
+
+	UPROPERTY(EditAnywhere, Category = "DefaultMovementValues")
+	float JumpHeight = 800.0f;
+
+	UPROPERTY(EditAnywhere, Category = "DefaultMovementValues")
+	float DoubleJumpHeight = 750.0f;
 
 	// Dash
 	float DashDistance;
@@ -81,12 +112,36 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Dash")
 	float DashCooldown;
 
+	UPROPERTY(EditAnywhere, Category = "Dash")
+	float DashEndVelocity = 750.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Dash")
+	float DashCollisionCheckDistance = 100.0f;
+
 	FVector DashEndPoint;
 	FVector DashDirection;
 	
 	float DashTimeElapsed;
 	bool bCanDash = true;
 	bool bHasAirDashed = false;
+
+	// Wall Running
+	UPROPERTY(EditAnywhere, Category = "WallRun")
+	float WallRunSpeed = 1100.0f;
+
+	UPROPERTY(EditAnywhere, Category = "WallRun")
+	float WallRunJumpHeight = 600;
+
+	UPROPERTY(EditAnywhere, Category = "WallRun")
+	float WallRunJumpDistance = 800;
+
+	FVector WallRunNormal;
+	
+	bool bIsWallRunningLeft = false;
+	bool bIsWallRunningRight = false;
+	bool bWallRunSupressed = false;
+	bool bTurnPlayerForward = false;
+	bool bIsWallRunning = false;
 
 	// Aim Down Sight
 	UPROPERTY(EditAnywhere, Category = "AimDownSight")
@@ -103,6 +158,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "AimDownSight")
 	float AimDownSightTime = 0.2f;
+
+	UPROPERTY(EditAnywhere, Category = "AimDownSight")
+	float AimDownSightSpeed = 5.0f;
 	
 	float AimTimeElapsed;
 };

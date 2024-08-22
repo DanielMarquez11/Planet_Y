@@ -1,8 +1,5 @@
 #include "Player/MainPlayer.h"
-
-#include "DetailLayoutBuilder.h"
 #include "InputActionValue.h"
-#include "MathUtil.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -13,28 +10,28 @@ AMainPlayer::AMainPlayer()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	// Character Rotation
+	// Disable character rotation based on controller input
 	bUseControllerRotationPitch = false;
-	bUseControllerRotationYaw = false; // Makes sure the player doesnt rotate when the camera rotates
+	bUseControllerRotationYaw = false; 
 	bUseControllerRotationRoll = false;
 
-	// Capsule Component
+	// Initialize Capsule Component
 	GetCapsuleComponent()->InitCapsuleSize(35.f, 60.0f);
 
-	// Jumping
+	// Configure Jumping
 	JumpMaxHoldTime = 0.1f;
 	JumpMaxCount = 2;
 
-	// Dashing
+	// Initialize Dashing
 	DashDistance = DefaultDashDistance;
 	DashTime = DefaultDashTime;
 	
-	// Movement Component
-	GetCharacterMovement()->bOrientRotationToMovement = true; // Makes the player rotate to the way its moving
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, 600.0f, 0.0f); // How fast the player rotates
+	// Configure Character Movement
+	GetCharacterMovement()->bOrientRotationToMovement = true; 
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, PlayerRotationRate, 0.0f); 
 	GetCharacterMovement()->bUseControllerDesiredRotation = true;
 
-	GetCharacterMovement()->GravityScale = 2.5f;
+	GetCharacterMovement()->GravityScale = BaseGravity;
 	GetCharacterMovement()->MaxAcceleration = 2300.0f;
 	GetCharacterMovement()->BrakingFrictionFactor = 1.0f;
 	GetCharacterMovement()->bUseSeparateBrakingFriction = true;
@@ -42,23 +39,23 @@ AMainPlayer::AMainPlayer()
 	GetCharacterMovement()->MaxWalkSpeed = DefaultPlayerSpeed;
 	GetCharacterMovement()->BrakingDecelerationWalking = 4000.0f;
 
-	GetCharacterMovement()->JumpZVelocity = 800.0f;
+	GetCharacterMovement()->JumpZVelocity = JumpHeight;
 	GetCharacterMovement()->BrakingDecelerationFalling = 100.0f;
 	GetCharacterMovement()->AirControl = 0.5f;
 
-	// Camera Boom
+	// Initialize Camera Boom (Spring Arm)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
 
-	CameraBoom->TargetArmLength = DefaultArmLength; // Range of camera
-	CameraBoom->SocketOffset = DefaultCameraOffset; // Offset of the camera
-	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
+	CameraBoom->TargetArmLength = DefaultArmLength; 
+	CameraBoom->SocketOffset = DefaultCameraOffset; 
+	CameraBoom->bUsePawnControlRotation = true; 
 
-	// Camera
+	// Initialize Follow Camera
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	
-	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+	FollowCamera->bUsePawnControlRotation = false; 
 }
 
 void AMainPlayer::BeginPlay()
@@ -70,44 +67,9 @@ void AMainPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	// Dash
-	if (bIsDashing)
-	{
-		const float LerpAlpha = (DashTimeElapsed + DeltaTime) / DashTime;
-		const FVector DashUpdateLocation = FMath::Lerp(GetActorLocation(), DashEndPoint, LerpAlpha);
-
-		CheckDashCollision();
-		
-		SetActorLocation(DashUpdateLocation);
-	}
-
-	// Aim Down Sight
-	if (bIsAiming)
-	{
-		const float LerpAlpha = (AimTimeElapsed + DeltaTime) / AimDownSightTime;
-		
-		if (LerpAlpha < 1.0f)
-		{
-			const float AimingArmLengthUpdate = FMath::Lerp(CameraBoom->TargetArmLength, AimingArmLength, LerpAlpha);
-			const FVector AimingOffsetUpdate = FMath::Lerp(CameraBoom->SocketOffset, AimingCameraOffset, LerpAlpha);
-			
-			CameraBoom->TargetArmLength = AimingArmLengthUpdate;
-			CameraBoom->SocketOffset = AimingOffsetUpdate;
-		}
-	}
-	else
-	{
-		const float LerpAlpha = (AimTimeElapsed + DeltaTime) / AimDownSightTime;
-
-		if (LerpAlpha > 0.0f)
-		{
-			const float AimingArmLengthUpdate = FMath::Lerp(CameraBoom->TargetArmLength, DefaultArmLength, LerpAlpha);
-			const FVector AimingOffsetUpdate = FMath::Lerp(CameraBoom->SocketOffset, DefaultCameraOffset, LerpAlpha);
-
-			CameraBoom->TargetArmLength = AimingArmLengthUpdate;
-			CameraBoom->SocketOffset = AimingOffsetUpdate;
-		}
-	}
+	WallRunUpdate();
+	DashUpdate();
+	AimDownSightUpdate();
 }
 #pragma endregion Base Functions
 
@@ -143,19 +105,21 @@ void AMainPlayer::Look(const FInputActionValue& Value)
 
 void AMainPlayer::StartJump()
 {
+	if (bIsWallRunning)
+	{
+		WallRunJump();
+		return;
+	}
+
 	if (JumpCurrentCount == 1)
 	{
-		const FVector PlayerVelocity = (GetCharacterMovement()->Velocity / 10) * 4.0f;
-		GetCharacterMovement()->Velocity = PlayerVelocity + (GetLastMovementInputVector().GetSafeNormal() * 750.0f);
-		
-		Jump();
+		const FVector BoostedVelocity = GetCharacterMovement()->Velocity * 0.4f + GetLastMovementInputVector().GetSafeNormal() * DoubleJumpHeight;
+		GetCharacterMovement()->Velocity = BoostedVelocity;
 
 		PlayAnimMontage(DoubleJumpMontage);
 	}
-	else
-	{
-		Jump();
-	}
+
+	Jump();
 }
 
 void AMainPlayer::StopJump()
@@ -166,55 +130,65 @@ void AMainPlayer::StopJump()
 void AMainPlayer::Landed(const FHitResult& Hit)
 {
 	Super::Landed(Hit);
-
+	
 	bHasAirDashed = false;
+	EndWallRun(0.0f);
 }
 #pragma endregion Base Movement
 
 #pragma region Dash
 void AMainPlayer::Dash()
 {
-	if (!bIsDashing && bCanDash)
+	if (bIsDashing || !bCanDash)
 	{
-		const bool bIsInAir = !GetCharacterMovement()->IsMovingOnGround();
-
-		if (bIsInAir && bHasAirDashed)
-		{
-			return;
-		}
-		
-		bIsDashing = true;
-		bCanDash = false;
-		bHasAirDashed = bIsInAir;
-
-		DashTimeElapsed = 0.0f;
-
-		GetCharacterMovement()->Velocity = FVector(0, 0, 0);
-		GetCharacterMovement()->GravityScale = 0;
-
-		if (GetLastMovementInputVector() == FVector(0, 0, 0))
-		{
-			DashEndPoint = GetActorLocation() + (GetActorForwardVector().GetSafeNormal() * DashDistance);
-			DashDirection = GetActorForwardVector();
-		}
-		else
-		{
-			DashEndPoint = GetActorLocation() + (GetLastMovementInputVector().GetSafeNormal() * DashDistance);
-			DashDirection = GetLastMovementInputVector();
-		}
-		
-		FTimerHandle DashTimer;
-		FTimerHandle DashCooldownTimer;
-		
-		GetWorld()->GetTimerManager().SetTimer(DashTimer, this, &AMainPlayer::StopDash, DashTime, false);
-		GetWorld()->GetTimerManager().SetTimer(DashCooldownTimer, this, &AMainPlayer::ResetDashCooldown, DashCooldown, false);
+		return;
 	}
+	
+	const bool bIsInAir = !GetCharacterMovement()->IsMovingOnGround();
+
+	if (bIsInAir && bHasAirDashed)
+	{
+		return;
+	}
+
+	bIsDashing = true;
+	bCanDash = false;
+	bHasAirDashed = bIsInAir;
+
+	DashTimeElapsed = 0.0f;
+
+	// Stop current movement and disable gravity during dash
+	GetCharacterMovement()->StopMovementImmediately();
+	GetCharacterMovement()->GravityScale = 0;
+
+	const FVector MovementInput = GetLastMovementInputVector();
+	const FVector DashVector = MovementInput.IsNearlyZero() ? GetActorForwardVector() : MovementInput.GetSafeNormal();
+
+	DashEndPoint = GetActorLocation() + DashVector * DashDistance;
+	DashDirection = DashVector;
+
+	FTimerHandle DashTimer;
+	FTimerHandle DashCooldownTimer;
+		
+	GetWorld()->GetTimerManager().SetTimer(DashTimer, this, &AMainPlayer::StopDash, DashTime, false);
+	GetWorld()->GetTimerManager().SetTimer(DashCooldownTimer, this, &AMainPlayer::ResetDashCooldown, DashCooldown, false);
+}
+
+void AMainPlayer::DashUpdate()
+{
+	if (!bIsDashing) return;
+	
+	const float LerpAlpha = (DashTimeElapsed + GetWorld()->GetDeltaSeconds()) / DashTime;
+	const FVector DashUpdateLocation = FMath::Lerp(GetActorLocation(), DashEndPoint, LerpAlpha);
+
+	CheckDashCollision();
+	SetActorLocation(DashUpdateLocation);
 }
 
 void AMainPlayer::StopDash()
 {
-	GetCharacterMovement()->GravityScale = 2.5f;
-	GetCharacterMovement()->Velocity = DashDirection * 750.0f;
+	GetCharacterMovement()->GravityScale = BaseGravity;
+	GetCharacterMovement()->Velocity = DashDirection * DashEndVelocity;
 	
 	bIsDashing = false;
 }
@@ -228,11 +202,11 @@ void AMainPlayer::CheckDashCollision()
 {
 	const FVector TraceStartLocation = GetActorLocation();
 	const FVector ForwardVector = GetLastMovementInputVector().GetSafeNormal();
-	const FVector TraceLength = TraceStartLocation + (ForwardVector * 100);
+	const FVector TraceEndLocation = TraceStartLocation + ForwardVector * DashCollisionCheckDistance;
 
-	FHitResult MiddleHitResult;
+	FHitResult HitResult;
 	
-	if (GetWorld()->LineTraceSingleByChannel(MiddleHitResult, TraceStartLocation, TraceLength, ECC_Visibility))
+	if (GetWorld()->LineTraceSingleByChannel(HitResult, TraceStartLocation, TraceEndLocation, ECC_Visibility))
 	{
 		StopDash();
 	}
@@ -244,22 +218,183 @@ void AMainPlayer::AimDownSight()
 {
 	bIsAiming = true;
 
+	// Update dash parameters for aiming
 	DashDistance = AimingDashDistance;
 	DashTime = AimingDashTime;
 
-	GetCharacterMovement()->MaxWalkSpeed = AimingPlayerSpeed;
-	GetCharacterMovement()->bOrientRotationToMovement = false;
+	// Adjust movement settings for aiming
+	UCharacterMovementComponent* PlayerMovement = GetCharacterMovement();
+	
+	PlayerMovement->MaxWalkSpeed = AimingPlayerSpeed;
+	PlayerMovement->bOrientRotationToMovement = false;
+}
+
+void AMainPlayer::AimDownSightUpdate()
+{
+	const float DeltaTime = GetWorld()->GetDeltaSeconds();
+	const float LerpAlpha = FMath::Clamp((AimTimeElapsed + DeltaTime) / AimDownSightTime, 0.0f, 1.0f);
+
+	// Determine the target values based on aiming state
+	const float TargetArmLength = bIsAiming ? AimingArmLength : DefaultArmLength;
+	const FVector TargetSocketOffset = bIsAiming ? AimingCameraOffset : DefaultCameraOffset;
+
+	// Update AimTimeElapsed
+	if (bIsAiming || LerpAlpha > 0.0f)
+	{
+		CameraBoom->TargetArmLength = FMath::Lerp(CameraBoom->TargetArmLength, TargetArmLength, LerpAlpha);
+		CameraBoom->SocketOffset = FMath::Lerp(CameraBoom->SocketOffset, TargetSocketOffset, LerpAlpha);
+		
+		// Reset AimTimeElapsed when the lerp is complete and not aiming
+		if (!bIsAiming && LerpAlpha >= 1.0f)
+		{
+			AimTimeElapsed = 0.0f;
+		}
+	}
 }
 
 void AMainPlayer::StopAiming()
 {
 	bIsAiming = false;
 
+	// Reset dash parameters
 	DashDistance = DefaultDashDistance;
 	DashTime = DefaultDashTime;
 
-	GetCharacterMovement()->MaxWalkSpeed = DefaultPlayerSpeed;
-	GetCharacterMovement()->bOrientRotationToMovement = true;
+	// Adjust movement settings to default
+	UCharacterMovementComponent* PlayerMovement = GetCharacterMovement();
+
+	PlayerMovement->MaxWalkSpeed = DefaultPlayerSpeed;
+	PlayerMovement->bOrientRotationToMovement = true;
 }
 #pragma endregion Aim Down Sight
+
+#pragma region Wallrun
+void AMainPlayer::WallRunUpdate()
+{
+	if (bWallRunSupressed) return;
+
+	const FVector ActorLocation = GetActorLocation();
+	const FVector RightVector = GetActorRightVector();
+	const FVector ForwardVector = GetActorForwardVector();
+	
+	const FVector WallRunRightVector = ActorLocation + (RightVector * 100.0f) + (ForwardVector * -22.0f);
+	const FVector WallRunLeftVector = ActorLocation + (RightVector * -100.0f) + (ForwardVector * -22.0f);
+
+	const bool bRightWallRun = WallRunMovement(ActorLocation, WallRunRightVector, -1.0f);
+	const bool bLeftWallRun = !bIsWallRunningRight && WallRunMovement(ActorLocation, WallRunLeftVector, 1.0f);
+	
+	if (bRightWallRun)
+	{
+		StartWallRun(true, false);
+	}
+	else if (bLeftWallRun)
+	{
+		StartWallRun(false, true); 
+	}
+	else
+	{
+		EndWallRun(1.0f); 
+	}
+}
+
+void AMainPlayer::StartWallRun(const bool Right, const bool Left)
+{
+	bIsWallRunning = true;
+	bIsWallRunningRight = Right;
+	bIsWallRunningLeft = Left;
+
+	// Set movement values when start wall run
+	UCharacterMovementComponent* Movement = GetCharacterMovement();
+	
+	Movement->GravityScale = 0.0f;
+	Movement->bOrientRotationToMovement = false;
+	Movement->bUseControllerDesiredRotation = false;
+}
+
+bool AMainPlayer::WallRunMovement(const FVector& Start, const FVector& End, float Direction)
+{
+	FHitResult Hit;
+	
+	GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility);
+
+	if (Hit.bBlockingHit && Hit.GetActor()->ActorHasTag("RunnableWall"))
+	{
+		if (IsValidWallVector(Hit.Normal) && GetCharacterMovement()->IsFalling())
+		{
+			WallRunNormal = Hit.Normal;
+			
+			const FVector LaunchVector = WallRunNormal - GetActorLocation();
+			const FVector PlayerToWallVector = WallRunNormal * LaunchVector.Size();
+			const FVector ForwardVector = WallRunNormal.Cross(FVector(0, 0, 1)) * (WallRunSpeed * Direction);
+
+			if (!ForwardVector.IsZero())
+			{
+				const FRotator TargetRotation = FRotationMatrix::MakeFromX(ForwardVector.GetSafeNormal()).Rotator();
+				const FRotator NewRotation = FMath::RInterpTo(GetActorRotation(), TargetRotation, GetWorld()->GetDeltaSeconds(), AimDownSightSpeed);
+
+				SetActorRotation(NewRotation);
+
+				LaunchCharacter(PlayerToWallVector, false, false);
+				LaunchCharacter(ForwardVector, true, true);
+
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+void AMainPlayer::EndWallRun(float WallRunCooldown)
+{
+	if (!bIsWallRunning) return;
+
+	// End wall running state
+	bIsWallRunning = false;
+	bIsWallRunningRight = false;
+	bIsWallRunningLeft = false;
+
+	// Reset double jump and dash state
+	bHasAirDashed = false;
+	JumpCurrentCount = 1;
+
+	// Restore movement settings
+	UCharacterMovementComponent* PlayerMovement = GetCharacterMovement();
+	
+	PlayerMovement->bOrientRotationToMovement = true;
+	PlayerMovement->bUseControllerDesiredRotation = true;
+		
+	if (!bIsDashing)
+	{
+		PlayerMovement->GravityScale = BaseGravity;
+	}
+	
+	SupressWallRun(WallRunCooldown);
+}
+
+void AMainPlayer::WallRunJump()
+{
+	EndWallRun(0.35f);
+
+	const FVector JumpVector = WallRunJumpDistance * FVector(WallRunNormal.X, WallRunNormal.Y, 0) + FVector(0, 0, WallRunJumpHeight);
+	LaunchCharacter(JumpVector, false, true);
+}
+
+bool AMainPlayer::IsValidWallVector(const FVector& InVector) const
+{
+	return FMath::Abs(InVector.Z) <= 0.52f && GetCharacterMovement()->IsFalling();
+}
+
+void AMainPlayer::SupressWallRun(float WallRunCooldown)
+{
+	bWallRunSupressed = true;
+
+	FTimerHandle WallRunSupressTimer;
+	GetWorld()->GetTimerManager().SetTimer(WallRunSupressTimer, this, &AMainPlayer::ResetWallRunSupress, WallRunCooldown);
+}
+
+void AMainPlayer::ResetWallRunSupress()
+{
+	bWallRunSupressed = false;
+}
+#pragma endregion Wallrun
 
