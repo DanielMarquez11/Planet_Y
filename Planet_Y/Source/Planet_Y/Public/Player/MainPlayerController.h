@@ -38,6 +38,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<UInputAction> DashAction;
 
+	UPROPERTY(EditAnywhere, Category = "Input")
+	TObjectPtr<UInputAction> AimDownSightAction;
+
 private:
 
 	// Input Handlers
@@ -47,6 +50,9 @@ private:
 	void HandleStartJump();
 	void HandleStopJump();
 	void HandleDash();
+
+	void HandleAimDownSight();
+	void HandleStopAiming();
 
 	UPROPERTY()
 	AMainPlayer* PlayerRef;

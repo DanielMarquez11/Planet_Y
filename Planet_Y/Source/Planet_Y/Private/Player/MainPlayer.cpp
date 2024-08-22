@@ -1,5 +1,8 @@
 #include "Player/MainPlayer.h"
+
+#include "DetailLayoutBuilder.h"
 #include "InputActionValue.h"
+#include "MathUtil.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -21,6 +24,10 @@ AMainPlayer::AMainPlayer()
 	// Jumping
 	JumpMaxHoldTime = 0.1f;
 	JumpMaxCount = 2;
+
+	// Dashing
+	DashDistance = DefaultDashDistance;
+	DashTime = DefaultDashTime;
 	
 	// Movement Component
 	GetCharacterMovement()->bOrientRotationToMovement = true; // Makes the player rotate to the way its moving
@@ -32,7 +39,7 @@ AMainPlayer::AMainPlayer()
 	GetCharacterMovement()->BrakingFrictionFactor = 1.0f;
 	GetCharacterMovement()->bUseSeparateBrakingFriction = true;
 
-	GetCharacterMovement()->MaxWalkSpeed = 850.0f;
+	GetCharacterMovement()->MaxWalkSpeed = DefaultPlayerSpeed;
 	GetCharacterMovement()->BrakingDecelerationWalking = 4000.0f;
 
 	GetCharacterMovement()->JumpZVelocity = 800.0f;
@@ -43,8 +50,8 @@ AMainPlayer::AMainPlayer()
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
 
-	CameraBoom->TargetArmLength = 450.0f; // Range of camera
-	CameraBoom->SocketOffset =FVector(0, 0, 45.0f);
+	CameraBoom->TargetArmLength = DefaultArmLength; // Range of camera
+	CameraBoom->SocketOffset = DefaultCameraOffset; // Offset of the camera
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
 
 	// Camera
@@ -72,6 +79,28 @@ void AMainPlayer::Tick(float DeltaTime)
 		CheckDashCollision();
 		
 		SetActorLocation(DashUpdateLocation);
+	}
+
+	// Aim Down Sight
+	if (bIsAiming)
+	{
+		const float LerpAlpha = (AimTimeElapsed + DeltaTime) / AimDownSightTime;
+		
+		const float AimingArmLengthUpdate = FMath::Lerp(CameraBoom->TargetArmLength, AimingArmLength, LerpAlpha);
+		const FVector AimingOffsetUpdate = FMath::Lerp(CameraBoom->SocketOffset, AimingCameraOffset, LerpAlpha);
+		
+		CameraBoom->TargetArmLength = AimingArmLengthUpdate;
+		CameraBoom->SocketOffset = AimingOffsetUpdate;
+	}
+	else
+	{
+		const float LerpAlpha = (AimTimeElapsed + DeltaTime) / AimDownSightTime;
+		
+		const float AimingArmLengthUpdate = FMath::Lerp(CameraBoom->TargetArmLength, DefaultArmLength, LerpAlpha);
+		const FVector AimingOffsetUpdate = FMath::Lerp(CameraBoom->SocketOffset, DefaultCameraOffset, LerpAlpha);
+
+		CameraBoom->TargetArmLength = AimingArmLengthUpdate;
+		CameraBoom->SocketOffset = AimingOffsetUpdate;
 	}
 }
 #pragma endregion Base Functions
@@ -203,4 +232,26 @@ void AMainPlayer::CheckDashCollision()
 	}
 }
 #pragma endregion Dash
+
+void AMainPlayer::AimDownSight()
+{
+	bIsAiming = true;
+
+	DashDistance = AimingDashDistance;
+	DashTime = AimingDashTime;
+
+	GetCharacterMovement()->MaxWalkSpeed = AimingPlayerSpeed;
+	GetCharacterMovement()->bOrientRotationToMovement = false;
+}
+
+void AMainPlayer::StopAiming()
+{
+	bIsAiming = false;
+
+	DashDistance = DefaultDashDistance;
+	DashTime = DefaultDashTime;
+
+	GetCharacterMovement()->MaxWalkSpeed = DefaultPlayerSpeed;
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+}
 

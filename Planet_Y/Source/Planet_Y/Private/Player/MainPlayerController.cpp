@@ -34,6 +34,8 @@ void AMainPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AMainPlayerController::HandleStartJump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &AMainPlayerController::HandleStopJump);
 		EnhancedInputComponent->BindAction(DashAction, ETriggerEvent::Triggered, this, &AMainPlayerController::HandleDash);
+		EnhancedInputComponent->BindAction(AimDownSightAction, ETriggerEvent::Started, this, &AMainPlayerController::HandleAimDownSight);
+		EnhancedInputComponent->BindAction(AimDownSightAction, ETriggerEvent::Completed, this, &AMainPlayerController::HandleStopAiming);
 	}
 }
 
@@ -60,4 +62,14 @@ void AMainPlayerController::HandleStopJump()
 void AMainPlayerController::HandleDash()
 {
 	PlayerRef->Dash();
+}
+
+void AMainPlayerController::HandleAimDownSight()
+{
+	PlayerRef->AimDownSight();
+}
+
+void AMainPlayerController::HandleStopAiming()
+{
+	PlayerRef->StopAiming();
 }

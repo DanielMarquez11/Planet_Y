@@ -38,6 +38,10 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	bool bIsDashing = false;
+
+	// Aim Down Sight
+	void AimDownSight();
+	void StopAiming();
 	
 private:
 
@@ -51,20 +55,52 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 	UAnimMontage* DoubleJumpMontage;
 
+	// Base Movement
+	float DefaultPlayerSpeed = 850.0f;
+	float AimingPlayerSpeed = 450.0f;
+
 	// Dash
-	UPROPERTY(EditAnywhere, Category = "Dash")
 	float DashDistance;
+	float DashTime;
 
 	UPROPERTY(EditAnywhere, Category = "Dash")
-	float DashTime;
+	float DefaultDashDistance = 900.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Dash")
+	float AimingDashDistance = 500.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Dash")
+	float DefaultDashTime = 0.3f;
+
+	UPROPERTY(EditAnywhere, Category = "Dash")
+	float AimingDashTime = 0.20f;
 
 	UPROPERTY(EditAnywhere, Category = "Dash")
 	float DashCooldown;
 
 	FVector DashEndPoint;
 	FVector DashDirection;
-	float DashTimeElapsed;
 	
+	float DashTimeElapsed;
 	bool bCanDash = true;
 	bool bHasAirDashed = false;
+
+	// Aim Down Sight
+	UPROPERTY(EditAnywhere, Category = "AimDownSight")
+	float DefaultArmLength = 450.0f;
+
+	UPROPERTY(EditAnywhere, Category = "AimDownSight")
+	float AimingArmLength = 220.0f;
+
+	UPROPERTY(EditAnywhere, Category = "AimDownSight")
+	FVector DefaultCameraOffset = FVector(0.0f, 0.0f, 45.0f);
+
+	UPROPERTY(EditAnywhere, Category = "AimDownSight")
+	FVector AimingCameraOffset = FVector(0.0f, 70.0f, 50.0f);
+
+	UPROPERTY(EditAnywhere, Category = "AimDownSight")
+	float AimDownSightTime = 0.2f;
+	
+	bool bIsAiming = false;
+	float AimTimeElapsed;
 };
