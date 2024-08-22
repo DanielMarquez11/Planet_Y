@@ -86,21 +86,27 @@ void AMainPlayer::Tick(float DeltaTime)
 	{
 		const float LerpAlpha = (AimTimeElapsed + DeltaTime) / AimDownSightTime;
 		
-		const float AimingArmLengthUpdate = FMath::Lerp(CameraBoom->TargetArmLength, AimingArmLength, LerpAlpha);
-		const FVector AimingOffsetUpdate = FMath::Lerp(CameraBoom->SocketOffset, AimingCameraOffset, LerpAlpha);
-		
-		CameraBoom->TargetArmLength = AimingArmLengthUpdate;
-		CameraBoom->SocketOffset = AimingOffsetUpdate;
+		if (LerpAlpha < 1.0f)
+		{
+			const float AimingArmLengthUpdate = FMath::Lerp(CameraBoom->TargetArmLength, AimingArmLength, LerpAlpha);
+			const FVector AimingOffsetUpdate = FMath::Lerp(CameraBoom->SocketOffset, AimingCameraOffset, LerpAlpha);
+			
+			CameraBoom->TargetArmLength = AimingArmLengthUpdate;
+			CameraBoom->SocketOffset = AimingOffsetUpdate;
+		}
 	}
 	else
 	{
 		const float LerpAlpha = (AimTimeElapsed + DeltaTime) / AimDownSightTime;
-		
-		const float AimingArmLengthUpdate = FMath::Lerp(CameraBoom->TargetArmLength, DefaultArmLength, LerpAlpha);
-		const FVector AimingOffsetUpdate = FMath::Lerp(CameraBoom->SocketOffset, DefaultCameraOffset, LerpAlpha);
 
-		CameraBoom->TargetArmLength = AimingArmLengthUpdate;
-		CameraBoom->SocketOffset = AimingOffsetUpdate;
+		if (LerpAlpha > 0.0f)
+		{
+			const float AimingArmLengthUpdate = FMath::Lerp(CameraBoom->TargetArmLength, DefaultArmLength, LerpAlpha);
+			const FVector AimingOffsetUpdate = FMath::Lerp(CameraBoom->SocketOffset, DefaultCameraOffset, LerpAlpha);
+
+			CameraBoom->TargetArmLength = AimingArmLengthUpdate;
+			CameraBoom->SocketOffset = AimingOffsetUpdate;
+		}
 	}
 }
 #pragma endregion Base Functions
@@ -233,6 +239,7 @@ void AMainPlayer::CheckDashCollision()
 }
 #pragma endregion Dash
 
+#pragma region Aim Down Sight
 void AMainPlayer::AimDownSight()
 {
 	bIsAiming = true;
@@ -254,4 +261,5 @@ void AMainPlayer::StopAiming()
 	GetCharacterMovement()->MaxWalkSpeed = DefaultPlayerSpeed;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 }
+#pragma endregion Aim Down Sight
 

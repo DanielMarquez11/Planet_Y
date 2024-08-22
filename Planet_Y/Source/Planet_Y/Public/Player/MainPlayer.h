@@ -42,6 +42,9 @@ public:
 	// Aim Down Sight
 	void AimDownSight();
 	void StopAiming();
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsAiming = false;
 	
 private:
 
@@ -96,11 +99,10 @@ private:
 	FVector DefaultCameraOffset = FVector(0.0f, 0.0f, 45.0f);
 
 	UPROPERTY(EditAnywhere, Category = "AimDownSight")
-	FVector AimingCameraOffset = FVector(0.0f, 70.0f, 50.0f);
+	FVector AimingCameraOffset = FVector(0.0f, 85.0f, 50.0f);
 
 	UPROPERTY(EditAnywhere, Category = "AimDownSight")
 	float AimDownSightTime = 0.2f;
 	
-	bool bIsAiming = false;
 	float AimTimeElapsed;
 };
