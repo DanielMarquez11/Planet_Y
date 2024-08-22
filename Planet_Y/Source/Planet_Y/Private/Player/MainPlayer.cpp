@@ -277,8 +277,8 @@ void AMainPlayer::WallRunUpdate()
 	const FVector RightVector = GetActorRightVector();
 	const FVector ForwardVector = GetActorForwardVector();
 	
-	const FVector WallRunRightVector = ActorLocation + (RightVector * 100.0f) + (ForwardVector * -22.0f);
-	const FVector WallRunLeftVector = ActorLocation + (RightVector * -100.0f) + (ForwardVector * -22.0f);
+	const FVector WallRunRightVector = ActorLocation + (RightVector * 50.0f) + (ForwardVector * -22.0f);
+	const FVector WallRunLeftVector = ActorLocation + (RightVector * -50.0f) + (ForwardVector * -22.0f);
 
 	const bool bRightWallRun = WallRunMovement(ActorLocation, WallRunRightVector, -1.0f);
 	const bool bLeftWallRun = !bIsWallRunningRight && WallRunMovement(ActorLocation, WallRunLeftVector, 1.0f);
@@ -302,6 +302,7 @@ void AMainPlayer::StartWallRun(const bool Right, const bool Left)
 	bIsWallRunning = true;
 	bIsWallRunningRight = Right;
 	bIsWallRunningLeft = Left;
+	bCanDash = false;
 
 	// Set movement values when start wall run
 	UCharacterMovementComponent* Movement = GetCharacterMovement();
@@ -324,18 +325,18 @@ bool AMainPlayer::WallRunMovement(const FVector& Start, const FVector& End, floa
 			WallRunNormal = Hit.Normal;
 			
 			const FVector LaunchVector = WallRunNormal - GetActorLocation();
-			const FVector PlayerToWallVector = WallRunNormal * LaunchVector.Size();
+			const FVector PlayerToWallVector = WallRunNormal * LaunchVector.Length();
 			const FVector ForwardVector = WallRunNormal.Cross(FVector(0, 0, 1)) * (WallRunSpeed * Direction);
 
+			LaunchCharacter(PlayerToWallVector, false, false);
+			LaunchCharacter(ForwardVector, true, true);
+			
 			if (!ForwardVector.IsZero())
 			{
 				const FRotator TargetRotation = FRotationMatrix::MakeFromX(ForwardVector.GetSafeNormal()).Rotator();
 				const FRotator NewRotation = FMath::RInterpTo(GetActorRotation(), TargetRotation, GetWorld()->GetDeltaSeconds(), AimDownSightSpeed);
 
 				SetActorRotation(NewRotation);
-
-				LaunchCharacter(PlayerToWallVector, false, false);
-				LaunchCharacter(ForwardVector, true, true);
 
 				return true;
 			}
@@ -354,6 +355,7 @@ void AMainPlayer::EndWallRun(float WallRunCooldown)
 	bIsWallRunningLeft = false;
 
 	// Reset double jump and dash state
+	bCanDash = true;
 	bHasAirDashed = false;
 	JumpCurrentCount = 1;
 

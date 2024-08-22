@@ -54,6 +54,12 @@ public:
 	
 	bool IsValidWallVector(const FVector& InVector) const;
 
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsWallRunningLeft = false;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsWallRunningRight = false;
+
 	// Aim Down Sight
 	void AimDownSight();
 	void AimDownSightUpdate();
@@ -137,8 +143,6 @@ private:
 
 	FVector WallRunNormal;
 	
-	bool bIsWallRunningLeft = false;
-	bool bIsWallRunningRight = false;
 	bool bWallRunSupressed = false;
 	bool bTurnPlayerForward = false;
 	bool bIsWallRunning = false;
