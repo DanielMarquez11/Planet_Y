@@ -277,8 +277,8 @@ void AMainPlayer::WallRunUpdate()
 	const FVector RightVector = GetActorRightVector();
 	const FVector ForwardVector = GetActorForwardVector();
 	
-	const FVector WallRunRightVector = ActorLocation + (RightVector * 50.0f) + (ForwardVector * -22.0f);
-	const FVector WallRunLeftVector = ActorLocation + (RightVector * -50.0f) + (ForwardVector * -22.0f);
+	const FVector WallRunRightVector = ActorLocation + (RightVector * 50.0f) + (ForwardVector);
+	const FVector WallRunLeftVector = ActorLocation + (RightVector * -50.0f) + (ForwardVector);
 
 	const bool bRightWallRun = WallRunMovement(ActorLocation, WallRunRightVector, -1.0f);
 	const bool bLeftWallRun = !bIsWallRunningRight && WallRunMovement(ActorLocation, WallRunLeftVector, 1.0f);
