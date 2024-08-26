@@ -1,6 +1,7 @@
 #include "Player/MainPlayer.h"
 #include "InputActionValue.h"
 #include "Camera/CameraComponent.h"
+#include "Combat/Weapons/Pistol.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -61,6 +62,11 @@ AMainPlayer::AMainPlayer()
 void AMainPlayer::BeginPlay()
 {
 	Super::BeginPlay();
+
+	APistol* Pistol = GetWorld()->SpawnActor<APistol>(APistol::StaticClass());
+
+	StarterWeapon = Pistol;
+	Weapon = StarterWeapon;
 }
 
 void AMainPlayer::Tick(float DeltaTime)

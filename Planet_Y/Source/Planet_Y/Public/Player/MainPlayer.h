@@ -4,6 +4,7 @@
 #include "GameFramework/Character.h"
 #include "MainPlayer.generated.h"
 
+class ABaseWeapon;
 class USpringArmComponent;
 class UCameraComponent;
 struct FInputActionValue;
@@ -167,4 +168,11 @@ private:
 	float AimDownSightSpeed = 5.0f;
 	
 	float AimTimeElapsed;
+
+	// Combat
+	UPROPERTY()
+	ABaseWeapon* StarterWeapon;
+	
+	UPROPERTY()
+	ABaseWeapon* Weapon;
 };
