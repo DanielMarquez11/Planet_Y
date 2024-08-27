@@ -11,6 +11,8 @@ ABaseBullet::ABaseBullet()
 	BulletMesh = CreateDefaultSubobject<UStaticMeshComponent>("BulletMesh");
 	BulletMesh->SetupAttachment(GetRootComponent());
 
+	BulletMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>("ProjectileMovementComponent");
 
 	ProjectileMovementComponent->InitialSpeed = BulletSpeed;

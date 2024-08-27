@@ -115,6 +115,8 @@ void AMainPlayer::Look(const FInputActionValue& Value)
 
 void AMainPlayer::StartJump()
 {
+	if (bIsAiming) {return;}
+	
 	if (bIsWallRunning)
 	{
 		WallRunJump();
@@ -226,7 +228,7 @@ void AMainPlayer::CheckDashCollision()
 #pragma region Wallrun
 void AMainPlayer::WallRunUpdate()
 {
-	if (bWallRunSupressed) return;
+	if (bWallRunSupressed || bIsAiming) return;
 
 	const FVector ActorLocation = GetActorLocation();
 	const FVector RightVector = GetActorRightVector();
