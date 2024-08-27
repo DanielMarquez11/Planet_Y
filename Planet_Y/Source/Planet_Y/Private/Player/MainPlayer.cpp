@@ -261,6 +261,8 @@ void AMainPlayer::StartWallRun(const bool Right, const bool Left)
 	bIsWallRunningLeft = Left;
 	bCanDash = false;
 
+	StopDash();
+
 	// Set movement values when start wall run
 	UCharacterMovementComponent* Movement = GetCharacterMovement();
 	
