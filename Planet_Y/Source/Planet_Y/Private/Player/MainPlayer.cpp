@@ -447,8 +447,6 @@ void AMainPlayer::Shoot()
 {
 	if (CurrentWeapon && CurrentWeapon->WeaponBullet && bIsAiming)
 	{
-		bool bWantsToFire = true;
-		
 		const float CurrentTime = GetWorld()->GetTimeSeconds();
 
 		if (CurrentTime - TimeSinceLastFired >= CurrentWeapon->FireRate)
@@ -470,7 +468,7 @@ void AMainPlayer::FireBullet() const
 {
 	const APlayerCameraManager* PlayerCamera = GetWorld()->GetFirstPlayerController()->PlayerCameraManager;
 
-	const FVector Start = PlayerCamera->GetCameraLocation();
+	const FVector Start = PlayerCamera->GetCameraLocation() + (PlayerCamera->GetCameraRotation().Vector() * 300.0f);
 	const FVector End = (PlayerCamera->GetCameraRotation().Vector() * 10000.0f) + Start;
 
 	FHitResult Hit;

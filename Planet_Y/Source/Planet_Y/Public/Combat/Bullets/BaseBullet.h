@@ -4,6 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "BaseBullet.generated.h"
 
+class UCapsuleComponent;
 class UProjectileMovementComponent;
 
 UCLASS()
@@ -17,23 +18,29 @@ public:
 
 	virtual void BeginPlay() override;
 
-private:
+	UFUNCTION()
+	void OnCapsuleBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+private:
+	
 	void DestroyBullet();
 
 	// Bullet Components
-	UPROPERTY(EditAnywhere, Category = "Bullet")
+	UPROPERTY(VisibleAnywhere, Category = "Bullet")
 	USceneComponent* Root;
 	
-	UPROPERTY(EditAnywhere, Category = "Bullet")
+	UPROPERTY(VisibleAnywhere, Category = "Bullet")
 	UStaticMeshComponent* BulletMesh;
 
-	UPROPERTY(EditAnywhere, Category = "Bullet")
+	UPROPERTY(VisibleAnywhere, Category = "Bullet")
+	UCapsuleComponent* CollisionCapsule;
+
+	UPROPERTY(VisibleAnywhere, Category = "Bullet")
 	UProjectileMovementComponent* ProjectileMovementComponent;
 
 	// Bullet Properties
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
-	float BulletSpeed = 8000.0f;
+	float BulletSpeed = 6000.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	float LifeTime = 2.0f;
