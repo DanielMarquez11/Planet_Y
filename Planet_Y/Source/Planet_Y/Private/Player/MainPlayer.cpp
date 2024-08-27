@@ -361,6 +361,11 @@ void AMainPlayer::ResetWallRunSupress()
 void AMainPlayer::AimDownSight()
 {
 	if (CurrentWeapon == nullptr) {return;}
+
+	if (bIsWallRunning)
+	{
+		EndWallRun(0.2f);
+	}
 	
 	bIsAiming = true;
 
