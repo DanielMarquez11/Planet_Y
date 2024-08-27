@@ -440,6 +440,8 @@ void AMainPlayer::Shoot()
 {
 	if (CurrentWeapon && CurrentWeapon->WeaponBullet && bIsAiming)
 	{
+		bool bWantsToFire = true;
+		
 		const float CurrentTime = GetWorld()->GetTimeSeconds();
 
 		if (CurrentTime - TimeSinceLastFired >= CurrentWeapon->FireRate)

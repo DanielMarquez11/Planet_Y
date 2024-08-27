@@ -15,7 +15,11 @@ public:
 
 	ABaseBullet();
 
-private:	
+	virtual void BeginPlay() override;
+
+private:
+
+	void DestroyBullet();
 
 	// Bullet Components
 	UPROPERTY(EditAnywhere, Category = "Bullet")
@@ -30,4 +34,7 @@ private:
 	// Bullet Properties
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	float BulletSpeed = 8000.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	float LifeTime = 2.0f;
 };

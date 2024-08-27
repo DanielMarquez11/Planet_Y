@@ -20,3 +20,16 @@ ABaseBullet::ABaseBullet()
 	ProjectileMovementComponent->ProjectileGravityScale = 0.0f;
 }
 
+void ABaseBullet::BeginPlay()
+{
+	Super::BeginPlay();
+
+	FTimerHandle DestructionTimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(DestructionTimerHandle, this, &ABaseBullet::DestroyBullet, LifeTime, false);
+}
+
+void ABaseBullet::DestroyBullet()
+{
+	Destroy();
+}
+

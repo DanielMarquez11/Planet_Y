@@ -37,7 +37,7 @@ void AMainPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(AimDownSightAction, ETriggerEvent::Started, this, &AMainPlayerController::HandleAimDownSight);
 		EnhancedInputComponent->BindAction(AimDownSightAction, ETriggerEvent::Completed, this, &AMainPlayerController::HandleStopAiming);
 		
-		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Started, this, &AMainPlayerController::HandleStartShooting);
+		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Triggered, this, &AMainPlayerController::HandleStartShooting);
 		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Completed, this, &AMainPlayerController::HandleStopShooting);
 	}
 }
