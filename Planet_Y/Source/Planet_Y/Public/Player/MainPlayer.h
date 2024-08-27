@@ -68,6 +68,15 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	bool bIsAiming = false;
+
+	// Combat
+	void EquipWeapon() const;
+	void HolsterWeapon() const;
+	
+	void Shoot();
+	void StopShooting();
+	
+	void FireBullet() const;
 	
 private:
 
@@ -170,9 +179,12 @@ private:
 	float AimTimeElapsed;
 
 	// Combat
-	UPROPERTY()
-	ABaseWeapon* StarterWeapon;
+	UPROPERTY(EditAnywhere, Category = "Weapon")
+	TSubclassOf<ABaseWeapon> StarterWeapon;
 	
-	UPROPERTY()
-	ABaseWeapon* Weapon;
+	UPROPERTY(VisibleAnywhere, Category = "Weapon")
+	ABaseWeapon* CurrentWeapon;
+
+	FTimerHandle FireBulletTimerHandle;
+	float TimeSinceLastFired;
 };

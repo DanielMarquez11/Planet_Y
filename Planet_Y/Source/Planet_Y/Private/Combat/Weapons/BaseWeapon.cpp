@@ -9,15 +9,8 @@ ABaseWeapon::ABaseWeapon()
 
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>("WeaponMesh");
 	WeaponMesh->SetupAttachment(GetRootComponent());
-}
 
-void ABaseWeapon::BeginPlay()
-{
-	Super::BeginPlay();
-}
-
-void ABaseWeapon::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
+	BulletSpawnPoint = CreateDefaultSubobject<USceneComponent>("BulletSpawnPoint");
+	BulletSpawnPoint->SetupAttachment(WeaponMesh);
 }
 

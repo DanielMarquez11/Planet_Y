@@ -1,6 +1,7 @@
 #include "Player/MainPlayer.h"
 #include "InputActionValue.h"
 #include "Camera/CameraComponent.h"
+#include "Combat/Bullets/BaseBullet.h"
 #include "Combat/Weapons/Pistol.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -63,10 +64,13 @@ void AMainPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 
-	APistol* Pistol = GetWorld()->SpawnActor<APistol>(APistol::StaticClass());
+	if (StarterWeapon)
+	{
+		 CurrentWeapon = GetWorld()->SpawnActor<ABaseWeapon>(StarterWeapon);
 
-	StarterWeapon = Pistol;
-	Weapon = StarterWeapon;
+		 const FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, true);
+		 CurrentWeapon->AttachToComponent(GetMesh(), AttachmentRules, FName("PistolHolster"));
+	}
 }
 
 void AMainPlayer::Tick(float DeltaTime)
@@ -219,61 +223,6 @@ void AMainPlayer::CheckDashCollision()
 }
 #pragma endregion Dash
 
-#pragma region Aim Down Sight
-void AMainPlayer::AimDownSight()
-{
-	bIsAiming = true;
-
-	// Update dash parameters for aiming
-	DashDistance = AimingDashDistance;
-	DashTime = AimingDashTime;
-
-	// Adjust movement settings for aiming
-	UCharacterMovementComponent* PlayerMovement = GetCharacterMovement();
-	
-	PlayerMovement->MaxWalkSpeed = AimingPlayerSpeed;
-	PlayerMovement->bOrientRotationToMovement = false;
-}
-
-void AMainPlayer::AimDownSightUpdate()
-{
-	const float DeltaTime = GetWorld()->GetDeltaSeconds();
-	const float LerpAlpha = FMath::Clamp((AimTimeElapsed + DeltaTime) / AimDownSightTime, 0.0f, 1.0f);
-
-	// Determine the target values based on aiming state
-	const float TargetArmLength = bIsAiming ? AimingArmLength : DefaultArmLength;
-	const FVector TargetSocketOffset = bIsAiming ? AimingCameraOffset : DefaultCameraOffset;
-
-	// Update AimTimeElapsed
-	if (bIsAiming || LerpAlpha > 0.0f)
-	{
-		CameraBoom->TargetArmLength = FMath::Lerp(CameraBoom->TargetArmLength, TargetArmLength, LerpAlpha);
-		CameraBoom->SocketOffset = FMath::Lerp(CameraBoom->SocketOffset, TargetSocketOffset, LerpAlpha);
-		
-		// Reset AimTimeElapsed when the lerp is complete and not aiming
-		if (!bIsAiming && LerpAlpha >= 1.0f)
-		{
-			AimTimeElapsed = 0.0f;
-		}
-	}
-}
-
-void AMainPlayer::StopAiming()
-{
-	bIsAiming = false;
-
-	// Reset dash parameters
-	DashDistance = DefaultDashDistance;
-	DashTime = DefaultDashTime;
-
-	// Adjust movement settings to default
-	UCharacterMovementComponent* PlayerMovement = GetCharacterMovement();
-
-	PlayerMovement->MaxWalkSpeed = DefaultPlayerSpeed;
-	PlayerMovement->bOrientRotationToMovement = true;
-}
-#pragma endregion Aim Down Sight
-
 #pragma region Wallrun
 void AMainPlayer::WallRunUpdate()
 {
@@ -405,4 +354,124 @@ void AMainPlayer::ResetWallRunSupress()
 	bWallRunSupressed = false;
 }
 #pragma endregion Wallrun
+
+#pragma region Aim Down Sight
+void AMainPlayer::AimDownSight()
+{
+	if (CurrentWeapon == nullptr) {return;}
+	
+	bIsAiming = true;
+
+	EquipWeapon();
+
+	// Update dash parameters for aiming
+	DashDistance = AimingDashDistance;
+	DashTime = AimingDashTime;
+
+	// Adjust movement settings for aiming
+	UCharacterMovementComponent* PlayerMovement = GetCharacterMovement();
+	
+	PlayerMovement->MaxWalkSpeed = AimingPlayerSpeed;
+	PlayerMovement->bOrientRotationToMovement = false;
+}
+
+void AMainPlayer::AimDownSightUpdate()
+{
+	const float DeltaTime = GetWorld()->GetDeltaSeconds();
+	const float LerpAlpha = FMath::Clamp((AimTimeElapsed + DeltaTime) / AimDownSightTime, 0.0f, 1.0f);
+
+	// Determine the target values based on aiming state
+	const float TargetArmLength = bIsAiming ? AimingArmLength : DefaultArmLength;
+	const FVector TargetSocketOffset = bIsAiming ? AimingCameraOffset : DefaultCameraOffset;
+
+	// Update AimTimeElapsed
+	if (bIsAiming || LerpAlpha > 0.0f)
+	{
+		CameraBoom->TargetArmLength = FMath::Lerp(CameraBoom->TargetArmLength, TargetArmLength, LerpAlpha);
+		CameraBoom->SocketOffset = FMath::Lerp(CameraBoom->SocketOffset, TargetSocketOffset, LerpAlpha);
+		
+		// Reset AimTimeElapsed when the lerp is complete and not aiming
+		if (!bIsAiming && LerpAlpha >= 1.0f)
+		{
+			AimTimeElapsed = 0.0f;
+		}
+	}
+}
+
+void AMainPlayer::StopAiming()
+{
+	bIsAiming = false;
+
+	HolsterWeapon();
+
+	// Reset dash parameters
+	DashDistance = DefaultDashDistance;
+	DashTime = DefaultDashTime;
+
+	// Adjust movement settings to default
+	UCharacterMovementComponent* PlayerMovement = GetCharacterMovement();
+
+	PlayerMovement->MaxWalkSpeed = DefaultPlayerSpeed;
+	PlayerMovement->bOrientRotationToMovement = true;
+}
+
+void AMainPlayer::EquipWeapon() const
+{
+	if (CurrentWeapon)
+	{
+		const FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, true);
+		CurrentWeapon->AttachToComponent(GetMesh(), AttachmentRules, FName("WeaponSocket"));
+	}
+}
+
+void AMainPlayer::HolsterWeapon() const
+{
+	if (CurrentWeapon)
+	{
+		const FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, true);
+		CurrentWeapon->AttachToComponent(GetMesh(), AttachmentRules, FName("PistolHolster"));
+	}
+}
+
+#pragma endregion Aim Down Sight
+
+#pragma region Shooting
+void AMainPlayer::Shoot()
+{
+	if (CurrentWeapon && CurrentWeapon->WeaponBullet && bIsAiming)
+	{
+		const float CurrentTime = GetWorld()->GetTimeSeconds();
+
+		if (CurrentTime - TimeSinceLastFired >= CurrentWeapon->FireRate)
+		{
+			FireBullet();
+			TimeSinceLastFired = CurrentTime;
+
+			GetWorld()->GetTimerManager().SetTimer(FireBulletTimerHandle, this, &AMainPlayer::FireBullet, CurrentWeapon->FireRate, true);
+		}
+	}
+}
+
+void AMainPlayer::StopShooting()
+{
+	GetWorld()->GetTimerManager().ClearTimer(FireBulletTimerHandle);
+}
+
+void AMainPlayer::FireBullet() const
+{
+	const APlayerCameraManager* PlayerCamera = GetWorld()->GetFirstPlayerController()->PlayerCameraManager;
+
+	const FVector Start = PlayerCamera->GetCameraLocation();
+	const FVector End = (PlayerCamera->GetCameraRotation().Vector() * 10000.0f) + Start;
+
+	FHitResult Hit;
+
+	const bool bHit = GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility);
+
+	const FVector TargetPoint = bHit ? Hit.Location : End;
+	const FVector Direction = (TargetPoint - CurrentWeapon->BulletSpawnPoint->GetComponentLocation()).GetSafeNormal();
+
+	GetWorld()->SpawnActor<ABaseBullet>(CurrentWeapon->WeaponBullet, CurrentWeapon->BulletSpawnPoint->GetComponentLocation(), Direction.Rotation());
+}
+#pragma endregion Shooting
 

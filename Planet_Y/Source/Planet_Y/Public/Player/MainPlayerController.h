@@ -41,6 +41,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<UInputAction> AimDownSightAction;
 
+	UPROPERTY(EditAnywhere, Category = "Input")
+	TObjectPtr<UInputAction> ShootAction;
+
 private:
 
 	// Input Handlers
@@ -53,6 +56,9 @@ private:
 
 	void HandleAimDownSight();
 	void HandleStopAiming();
+
+	void HandleStartShooting();
+	void HandleStopShooting();
 
 	UPROPERTY()
 	AMainPlayer* PlayerRef;
