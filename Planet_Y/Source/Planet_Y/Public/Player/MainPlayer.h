@@ -24,8 +24,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	//Player Life
-	void TakeDamageToHealth_Implementation(float Damage) override;
-	void Die_Implementation() override;
+	virtual void TakeDamageToHealth_Implementation(float Damage) override;
+	virtual void Die_Implementation() override;
 
 	// Base Movement
 	void Move(const FInputActionValue& InputActionValue);

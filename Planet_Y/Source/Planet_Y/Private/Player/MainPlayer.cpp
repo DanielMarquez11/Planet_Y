@@ -86,6 +86,7 @@ void AMainPlayer::Tick(float DeltaTime)
 }
 #pragma endregion Base Functions
 
+#pragma region Player Life
 void AMainPlayer::TakeDamageToHealth_Implementation(float Damage)
 {
 	Health = Health - Damage;
@@ -100,6 +101,7 @@ void AMainPlayer::Die_Implementation()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Red, "Player Dead");
 }
+#pragma endregion Player Life
 
 #pragma region Base Movement
 void AMainPlayer::Move(const FInputActionValue& Value)
