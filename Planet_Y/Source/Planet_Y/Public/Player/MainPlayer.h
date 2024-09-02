@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Interfaces/Damageable.h"
 #include "MainPlayer.generated.h"
 
 class ABaseWeapon;
@@ -10,7 +11,7 @@ class UCameraComponent;
 struct FInputActionValue;
 
 UCLASS()
-class PLANET_Y_API AMainPlayer : public ACharacter
+class PLANET_Y_API AMainPlayer : public ACharacter, public IDamageable
 {
 	GENERATED_BODY()
 
@@ -21,6 +22,10 @@ public:
 
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
+
+	//Player Life
+	void TakeDamageToHealth_Implementation(float Damage) override;
+	void Die_Implementation() override;
 
 	// Base Movement
 	void Move(const FInputActionValue& InputActionValue);
@@ -79,6 +84,13 @@ public:
 	void FireBullet() const;
 	
 private:
+
+	// Player Life
+	UPROPERTY(EditAnywhere, Category = "PlayerLife")
+	float MaxHealth = 100.0f;
+	
+	UPROPERTY(VisibleAnywhere, Category = "PlayerLife")
+	float Health;
 
 	// Components
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))

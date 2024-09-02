@@ -57,7 +57,10 @@ AMainPlayer::AMainPlayer()
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	
-	FollowCamera->bUsePawnControlRotation = false; 
+	FollowCamera->bUsePawnControlRotation = false;
+
+	// Player Life
+	Health = MaxHealth;
 }
 
 void AMainPlayer::BeginPlay()
@@ -82,6 +85,21 @@ void AMainPlayer::Tick(float DeltaTime)
 	AimDownSightUpdate();
 }
 #pragma endregion Base Functions
+
+void AMainPlayer::TakeDamageToHealth_Implementation(float Damage)
+{
+	Health = Health - Damage;
+
+	if (Health <= 0.0f)
+	{
+		Execute_Die(this);
+	}
+}
+
+void AMainPlayer::Die_Implementation()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Red, "Player Dead");
+}
 
 #pragma region Base Movement
 void AMainPlayer::Move(const FInputActionValue& Value)

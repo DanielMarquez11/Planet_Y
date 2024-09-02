@@ -1,6 +1,7 @@
 #include "Combat/Bullets/BaseBullet.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Interfaces/Damageable.h"
 
 ABaseBullet::ABaseBullet()
 {
@@ -43,6 +44,12 @@ void ABaseBullet::BeginPlay()
 
 void ABaseBullet::OnCapsuleBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (OtherActor->GetClass()->ImplementsInterface(UDamageable::StaticClass()))
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Red, "Hit");
+		Cast<IDamageable>(OtherActor)->Execute_TakeDamageToHealth(OtherActor, 25.0f);
+	}
+
 	DestroyBullet();
 }
 
