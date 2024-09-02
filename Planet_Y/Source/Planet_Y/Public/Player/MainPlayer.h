@@ -143,13 +143,13 @@ private:
 
 	// Wall Running
 	UPROPERTY(EditAnywhere, Category = "WallRun")
-	float WallRunSpeed = 1100.0f;
+	float WallRunSpeed = 1200.0f;
 
 	UPROPERTY(EditAnywhere, Category = "WallRun")
-	float WallRunJumpHeight = 600;
+	float WallRunJumpHeight = 800;
 
 	UPROPERTY(EditAnywhere, Category = "WallRun")
-	float WallRunJumpDistance = 800;
+	float WallRunJumpDistance = 1100;
 
 	FVector WallRunNormal;
 	

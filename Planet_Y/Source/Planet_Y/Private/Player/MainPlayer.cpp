@@ -334,6 +334,7 @@ void AMainPlayer::EndWallRun(float WallRunCooldown)
 
 void AMainPlayer::WallRunJump()
 {
+	GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Red, "Hit");
 	EndWallRun(0.35f);
 
 	const FVector JumpVector = WallRunJumpDistance * FVector(WallRunNormal.X, WallRunNormal.Y, 0) + FVector(0, 0, WallRunJumpHeight);
