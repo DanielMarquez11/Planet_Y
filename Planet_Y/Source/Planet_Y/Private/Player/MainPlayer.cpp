@@ -136,7 +136,7 @@ void AMainPlayer::Look(const FInputActionValue& Value)
 void AMainPlayer::StartJump()
 {
 	if (bIsAiming) {return;}
-	
+
 	if (bIsWallRunning)
 	{
 		WallRunJump();

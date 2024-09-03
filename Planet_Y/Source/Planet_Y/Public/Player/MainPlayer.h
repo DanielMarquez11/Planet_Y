@@ -37,7 +37,7 @@ public:
 	virtual void Landed(const FHitResult& Hit) override;
 
 	// Dash
-	void Dash();
+	void Dash();	
 	void DashUpdate();
 	void StopDash();
 	void ResetDashCooldown();
