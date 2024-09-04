@@ -32,8 +32,14 @@ public:
 	void Look(const FInputActionValue& Value);
 	
 	void StartJump();
-	void StopJump();
+	void DoubleJump();
+	void CoyoteTimeEnded();
 
+	bool bCanJump = true;
+	bool bCanDoubleJump = false;
+	bool bHasDoubleJumped = false;
+
+	virtual void OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode) override;
 	virtual void Landed(const FHitResult& Hit) override;
 
 	// Dash
@@ -102,7 +108,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 	UAnimMontage* DoubleJumpMontage;
 
-	// Base Movement and default values
+	// Base Movement
 	UPROPERTY(EditAnywhere, Category = "DefaultMovementValues")
 	float BaseGravity = 2.5f;
 
@@ -115,11 +121,15 @@ private:
 	UPROPERTY(EditAnywhere, Category = "DefaultMovementValues")
 	float AimingPlayerSpeed = 450.0f;
 
+	// Jumps
 	UPROPERTY(EditAnywhere, Category = "DefaultMovementValues")
-	float JumpHeight = 800.0f;
+	float JumpHeight = 1100.0f;
 
 	UPROPERTY(EditAnywhere, Category = "DefaultMovementValues")
-	float DoubleJumpHeight = 750.0f;
+	float DoubleJumpHeight = 900.0f;
+
+	UPROPERTY(EditAnywhere, Category = "DefaultMovementValues")
+	float CoyoteTime = 0.3f;
 
 	// Dash
 	float DashDistance;

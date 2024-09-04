@@ -139,29 +139,71 @@ void AMainPlayer::StartJump()
 
 	if (bIsWallRunning)
 	{
+		bCanJump = false;
+		bCanDoubleJump = true;
+		bHasDoubleJumped = false;
+		
 		WallRunJump();
 		return;
 	}
 
-	if (JumpCurrentCount == 1)
+	if (bCanJump)
 	{
-		const FVector BoostedVelocity = GetCharacterMovement()->Velocity * 0.4f + GetLastMovementInputVector().GetSafeNormal() * DoubleJumpHeight;
-		GetCharacterMovement()->Velocity = BoostedVelocity;
+		LaunchCharacter(FVector(0.0f, 0.0f, JumpHeight), false, true);
 
-		PlayAnimMontage(DoubleJumpMontage);
+		bCanJump = false;
+		bCanDoubleJump = true;
 	}
-
-	Jump();
+	else if (bCanDoubleJump && !bIsDashing)
+	{
+		DoubleJump();
+	}
 }
 
-void AMainPlayer::StopJump()
+void AMainPlayer::DoubleJump()
 {
-	StopJumping();
+	bCanDoubleJump = false;
+	bHasDoubleJumped = true;
+	
+	const FVector BoostedVelocity = GetCharacterMovement()->Velocity * 0.4f + GetLastMovementInputVector().GetSafeNormal() * 800.0f;
+	GetCharacterMovement()->Velocity = BoostedVelocity;
+
+	PlayAnimMontage(DoubleJumpMontage);
+	
+	LaunchCharacter(FVector(0.0f, 0.0f, DoubleJumpHeight), false, true);
+}
+
+void AMainPlayer::CoyoteTimeEnded()
+{
+	bCanJump = false;
+
+	if (!bHasDoubleJumped)
+	{
+		bCanDoubleJump = true;
+	}
+}
+
+void AMainPlayer::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode)
+{
+	Super::OnMovementModeChanged(PrevMovementMode, PreviousCustomMode);
+
+	if (GetCharacterMovement()->MovementMode == MOVE_Falling)
+	{
+		FTimerHandle CoyoteTimer;
+		GetWorld()->GetTimerManager().SetTimer(CoyoteTimer, this, &AMainPlayer::CoyoteTimeEnded, CoyoteTime, false);
+
+		GetCharacterMovement()->RotationRate = FRotator(0.0f, 300.0f, 0.0f); 
+	}
 }
 
 void AMainPlayer::Landed(const FHitResult& Hit)
 {
 	Super::Landed(Hit);
+
+	bCanJump = true;
+	bHasDoubleJumped = false;
+
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, PlayerRotationRate, 0.0f); 
 	
 	bHasAirDashed = false;
 	EndWallRun(0.0f);

@@ -51,7 +51,6 @@ private:
 	void HandleLook(const FInputActionValue& InputActionValue);
 	
 	void HandleStartJump();
-	void HandleStopJump();
 	void HandleDash();
 
 	void HandleAimDownSight();
