@@ -212,5 +212,17 @@ private:
 
 	// Camera Effects
 	UPROPERTY(EditDefaultsOnly, Category = "CameraEffects")
+	TSubclassOf<UCameraShakeBase> JumpEffect;
+
+	UPROPERTY(EditDefaultsOnly, Category = "CameraEffects")
+	TSubclassOf<UCameraShakeBase> LandEffect;
+
+	UPROPERTY(EditDefaultsOnly, Category = "CameraEffects")
+	TSubclassOf<UCameraShakeBase> DoubleJumpEffect;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "CameraEffects")
 	TSubclassOf<UCameraShakeBase> PistolFireEffect;
+
+	UPROPERTY(EditDefaultsOnly, Category = "CameraEffects")
+	TSubclassOf<UCameraShakeBase> DashEffect;
 };

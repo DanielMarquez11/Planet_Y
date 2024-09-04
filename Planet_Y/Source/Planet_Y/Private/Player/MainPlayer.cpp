@@ -144,6 +144,8 @@ void AMainPlayer::StartJump()
 		bHasDoubleJumped = false;
 		
 		WallRunJump();
+
+		GetWorld()->GetFirstPlayerController()->PlayerCameraManager->StartCameraShake(JumpEffect, 1.0f);
 		return;
 	}
 
@@ -153,6 +155,8 @@ void AMainPlayer::StartJump()
 
 		bCanJump = false;
 		bCanDoubleJump = true;
+
+		GetWorld()->GetFirstPlayerController()->PlayerCameraManager->StartCameraShake(JumpEffect, 1.0f);
 	}
 	else if (bCanDoubleJump && !bIsDashing)
 	{
@@ -171,6 +175,8 @@ void AMainPlayer::DoubleJump()
 	PlayAnimMontage(DoubleJumpMontage);
 	
 	LaunchCharacter(FVector(0.0f, 0.0f, DoubleJumpHeight), false, true);
+
+	GetWorld()->GetFirstPlayerController()->PlayerCameraManager->StartCameraShake(DoubleJumpEffect, 1.0f);
 }
 
 void AMainPlayer::CoyoteTimeEnded()
@@ -207,6 +213,8 @@ void AMainPlayer::Landed(const FHitResult& Hit)
 	
 	bHasAirDashed = false;
 	EndWallRun(0.0f);
+	
+	GetWorld()->GetFirstPlayerController()->PlayerCameraManager->StartCameraShake(LandEffect, 1.0f);
 }
 #pragma endregion Base Movement
 
@@ -246,6 +254,8 @@ void AMainPlayer::Dash()
 		
 	GetWorld()->GetTimerManager().SetTimer(DashTimer, this, &AMainPlayer::StopDash, DashTime, false);
 	GetWorld()->GetTimerManager().SetTimer(DashCooldownTimer, this, &AMainPlayer::ResetDashCooldown, DashCooldown, false);
+
+	GetWorld()->GetFirstPlayerController()->PlayerCameraManager->StartCameraShake(DashEffect, 1.0f);
 }
 
 void AMainPlayer::DashUpdate()
