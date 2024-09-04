@@ -165,13 +165,13 @@ private:
 
 	// Wall Running
 	UPROPERTY(EditAnywhere, Category = "WallRun")
-	float WallRunSpeed = 1200.0f;
+	float WallRunSpeed = 1300.0f;
 
 	UPROPERTY(EditAnywhere, Category = "WallRun")
-	float WallRunJumpHeight = 800;
+	float WallRunJumpHeight = 900;
 
 	UPROPERTY(EditAnywhere, Category = "WallRun")
-	float WallRunJumpDistance = 1100;
+	float WallRunJumpDistance = 500;
 
 	FVector WallRunNormal;
 	
@@ -209,4 +209,8 @@ private:
 
 	FTimerHandle FireBulletTimerHandle;
 	float TimeSinceLastFired;
+
+	// Camera Effects
+	UPROPERTY(EditDefaultsOnly, Category = "CameraEffects")
+	TSubclassOf<UCameraShakeBase> PistolFireEffect;
 };

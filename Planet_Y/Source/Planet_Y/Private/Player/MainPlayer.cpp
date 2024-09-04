@@ -396,11 +396,11 @@ void AMainPlayer::EndWallRun(float WallRunCooldown)
 
 void AMainPlayer::WallRunJump()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Red, "Hit");
 	EndWallRun(0.35f);
 
-	const FVector JumpVector = WallRunJumpDistance * FVector(WallRunNormal.X, WallRunNormal.Y, 0) + FVector(0, 0, WallRunJumpHeight);
-	LaunchCharacter(JumpVector, false, true);
+	const FVector LaunchVector = FVector(WallRunNormal.X * WallRunJumpDistance, WallRunNormal.Y * WallRunJumpDistance, WallRunJumpHeight) + GetActorForwardVector() * 1000.0f;
+
+	LaunchCharacter(LaunchVector, true, true);
 }
 
 bool AMainPlayer::IsValidWallVector(const FVector& InVector) const
@@ -412,6 +412,7 @@ void AMainPlayer::SupressWallRun(float WallRunCooldown)
 {
 	bWallRunSupressed = true;
 
+	
 	FTimerHandle WallRunSupressTimer;
 	GetWorld()->GetTimerManager().SetTimer(WallRunSupressTimer, this, &AMainPlayer::ResetWallRunSupress, WallRunCooldown);
 }
@@ -544,6 +545,8 @@ void AMainPlayer::FireBullet() const
 	const FVector Direction = (TargetPoint - CurrentWeapon->BulletSpawnPoint->GetComponentLocation()).GetSafeNormal();
 
 	GetWorld()->SpawnActor<ABaseBullet>(CurrentWeapon->WeaponBullet, CurrentWeapon->BulletSpawnPoint->GetComponentLocation(), Direction.Rotation());
+
+	GetWorld()->GetFirstPlayerController()->PlayerCameraManager->StartCameraShake(PistolFireEffect, 1.0f);
 }
 #pragma endregion Shooting
 
