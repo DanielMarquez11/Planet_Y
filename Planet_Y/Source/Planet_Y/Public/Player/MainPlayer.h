@@ -5,6 +5,7 @@
 #include "Interfaces/Damageable.h"
 #include "MainPlayer.generated.h"
 
+class ACheckpoint;
 class ABaseWeapon;
 class USpringArmComponent;
 class UCameraComponent;
@@ -26,6 +27,9 @@ public:
 	//Player Life
 	virtual void TakeDamageToHealth_Implementation(float Damage) override;
 	virtual void Die_Implementation() override;
+
+	UPROPERTY(VisibleAnywhere, Category = "PlayerLife")
+	ACheckpoint* LastCheckpoint;
 
 	// Base Movement
 	void Move(const FInputActionValue& InputActionValue);
