@@ -6,6 +6,7 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Levels/Checkpoint.h"
 
 #pragma region Base Functions
 AMainPlayer::AMainPlayer()
@@ -99,7 +100,12 @@ void AMainPlayer::TakeDamageToHealth_Implementation(float Damage)
 
 void AMainPlayer::Die_Implementation()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Red, "Player Dead");
+	if (LastCheckpoint)
+	{
+		SetActorLocation(LastCheckpoint->GetActorLocation());
+
+		Health = MaxHealth;
+	}
 }
 #pragma endregion Player Life
 
