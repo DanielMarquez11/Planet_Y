@@ -22,8 +22,6 @@ void ACheckpoint::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActo
 {
 	if (AMainPlayer* Player = Cast<AMainPlayer>(OtherActor))
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Green, "New Checkpoint Set");
-
 		Player->LastCheckpoint = this;
 	}
 }
