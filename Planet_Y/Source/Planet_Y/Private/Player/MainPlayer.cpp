@@ -546,7 +546,7 @@ void AMainPlayer::StopShooting()
 	GetWorld()->GetTimerManager().ClearTimer(FireBulletTimerHandle);
 }
 
-void AMainPlayer::FireBullet() const
+void AMainPlayer::FireBullet() 
 {
 	const APlayerCameraManager* PlayerCamera = GetWorld()->GetFirstPlayerController()->PlayerCameraManager;
 
@@ -560,7 +560,12 @@ void AMainPlayer::FireBullet() const
 	const FVector TargetPoint = bHit ? Hit.Location : End;
 	const FVector Direction = (TargetPoint - CurrentWeapon->BulletSpawnPoint->GetComponentLocation()).GetSafeNormal();
 
-	GetWorld()->SpawnActor<ABaseBullet>(CurrentWeapon->WeaponBullet, CurrentWeapon->BulletSpawnPoint->GetComponentLocation(), Direction.Rotation());
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Instigator = this;   // Setting the player as the instigator
+	SpawnParams.Owner = this;  
+	
+	GetWorld()->SpawnActor<ABaseBullet>(CurrentWeapon->WeaponBullet, CurrentWeapon->BulletSpawnPoint->GetComponentLocation(), Direction.Rotation(), SpawnParams);
+
 
 	GetWorld()->GetFirstPlayerController()->PlayerCameraManager->StartCameraShake(PistolFireEffect, 1.0f);
 }

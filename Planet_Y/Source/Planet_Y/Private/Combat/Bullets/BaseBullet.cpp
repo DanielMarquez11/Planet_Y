@@ -43,6 +43,8 @@ void ABaseBullet::BeginPlay()
 
 void ABaseBullet::OnCapsuleBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (OtherActor == GetInstigator()) { return; }
+	
 	if (OtherActor->GetClass()->ImplementsInterface(UDamageable::StaticClass()))
 	{
 		Cast<IDamageable>(OtherActor)->Execute_TakeDamageToHealth(OtherActor, 25.0f);
@@ -50,7 +52,6 @@ void ABaseBullet::OnCapsuleBeginOverlap(UPrimitiveComponent* OverlappedComponent
 
 	DestroyBullet();
 }
-
 
 void ABaseBullet::DestroyBullet()
 {
