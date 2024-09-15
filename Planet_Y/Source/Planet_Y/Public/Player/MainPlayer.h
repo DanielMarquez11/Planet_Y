@@ -91,7 +91,7 @@ public:
 	void Shoot();
 	void StopShooting();
 	
-	void FireBullet() const;
+	void FireBullet();
 	
 private:
 
