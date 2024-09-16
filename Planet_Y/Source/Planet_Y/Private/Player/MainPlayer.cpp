@@ -164,7 +164,7 @@ void AMainPlayer::StartJump()
 
 		GetWorld()->GetFirstPlayerController()->PlayerCameraManager->StartCameraShake(JumpEffect, 1.0f);
 	}
-	else if (bCanDoubleJump && !bIsDashing)
+	else if (bCanDoubleJump && CurrentMovementAbility != EMovementAbilities::Dashing)
 	{
 		DoubleJump();
 	}
@@ -227,7 +227,7 @@ void AMainPlayer::Landed(const FHitResult& Hit)
 #pragma region Dash
 void AMainPlayer::Dash()
 {
-	if (bIsDashing || !bCanDash)
+	if (CurrentMovementAbility == EMovementAbilities::Dashing || !bCanDash)
 	{
 		return;
 	}
@@ -239,7 +239,8 @@ void AMainPlayer::Dash()
 		return;
 	}
 
-	bIsDashing = true;
+	CurrentMovementAbility = EMovementAbilities::Dashing;
+	
 	bCanDash = false;
 	bHasAirDashed = bIsInAir;
 
@@ -266,7 +267,7 @@ void AMainPlayer::Dash()
 
 void AMainPlayer::DashUpdate()
 {
-	if (!bIsDashing) return;
+	if (CurrentMovementAbility != EMovementAbilities::Dashing) return;
 	
 	const float LerpAlpha = (DashTimeElapsed + GetWorld()->GetDeltaSeconds()) / DashTime;
 	const FVector DashUpdateLocation = FMath::Lerp(GetActorLocation(), DashEndPoint, LerpAlpha);
@@ -280,7 +281,7 @@ void AMainPlayer::StopDash()
 	GetCharacterMovement()->GravityScale = BaseGravity;
 	GetCharacterMovement()->Velocity = DashDirection * DashEndVelocity;
 	
-	bIsDashing = false;
+	CurrentMovementAbility = EMovementAbilities::Moving;
 }
 
 void AMainPlayer::ResetDashCooldown()
@@ -316,7 +317,7 @@ void AMainPlayer::WallRunUpdate()
 	const FVector WallRunLeftVector = ActorLocation + (RightVector * -50.0f) + (ForwardVector);
 
 	const bool bRightWallRun = WallRunMovement(ActorLocation, WallRunRightVector, -1.0f);
-	const bool bLeftWallRun = !bIsWallRunningRight && WallRunMovement(ActorLocation, WallRunLeftVector, 1.0f);
+	const bool bLeftWallRun = CurrentMovementAbility != EMovementAbilities::WallRunningRight && WallRunMovement(ActorLocation, WallRunLeftVector, 1.0f);
 	
 	if (bRightWallRun)
 	{
@@ -334,12 +335,15 @@ void AMainPlayer::WallRunUpdate()
 
 void AMainPlayer::StartWallRun(const bool Right, const bool Left)
 {
-	bIsWallRunning = true;
-	bIsWallRunningRight = Right;
-	bIsWallRunningLeft = Left;
 	bCanDash = false;
-
 	StopDash();
+	
+	bIsWallRunning = true;
+
+	if (Right) {CurrentMovementAbility = EMovementAbilities::WallRunningRight; }
+	if (Left) {CurrentMovementAbility = EMovementAbilities::WallRunningLeft; }
+
+
 
 	// Set movement values when start wall run
 	UCharacterMovementComponent* Movement = GetCharacterMovement();
@@ -388,8 +392,7 @@ void AMainPlayer::EndWallRun(float WallRunCooldown)
 
 	// End wall running state
 	bIsWallRunning = false;
-	bIsWallRunningRight = false;
-	bIsWallRunningLeft = false;
+	CurrentMovementAbility = EMovementAbilities::Moving;
 
 	// Reset double jump and dash state
 	bCanDash = true;
@@ -402,7 +405,7 @@ void AMainPlayer::EndWallRun(float WallRunCooldown)
 	PlayerMovement->bOrientRotationToMovement = true;
 	PlayerMovement->bUseControllerDesiredRotation = true;
 		
-	if (!bIsDashing)
+	if (CurrentMovementAbility != EMovementAbilities::Dashing)
 	{
 		PlayerMovement->GravityScale = BaseGravity;
 	}

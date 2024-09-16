@@ -5,6 +5,15 @@
 #include "Interfaces/Damageable.h"
 #include "MainPlayer.generated.h"
 
+UENUM(BlueprintType)
+enum class EMovementAbilities : uint8
+{
+	Moving,
+	Dashing,
+	WallRunningRight,
+	WallRunningLeft
+};
+
 class ACheckpoint;
 class ABaseWeapon;
 class USpringArmComponent;
@@ -23,6 +32,9 @@ public:
 
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
+
+	UPROPERTY(BlueprintReadOnly)
+	EMovementAbilities CurrentMovementAbility;
 
 	//Player Life
 	virtual void TakeDamageToHealth_Implementation(float Damage) override;
@@ -53,9 +65,6 @@ public:
 	void ResetDashCooldown();
 	void CheckDashCollision();
 
-	UPROPERTY(BlueprintReadOnly)
-	bool bIsDashing = false;
-
 	// Wall Running
 	bool WallRunMovement(const FVector& Start, const FVector& End, float Direction);
 	void WallRunUpdate();
@@ -69,12 +78,6 @@ public:
 	void ResetWallRunSupress();
 	
 	bool IsValidWallVector(const FVector& InVector) const;
-
-	UPROPERTY(BlueprintReadOnly)
-	bool bIsWallRunningLeft = false;
-
-	UPROPERTY(BlueprintReadOnly)
-	bool bIsWallRunningRight = false;
 
 	// Aim Down Sight
 	void AimDownSight();
