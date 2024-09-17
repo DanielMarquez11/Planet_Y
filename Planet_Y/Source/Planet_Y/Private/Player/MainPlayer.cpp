@@ -1,8 +1,6 @@
 #include "Player/MainPlayer.h"
 #include "InputActionValue.h"
 #include "Camera/CameraComponent.h"
-#include "Combat/Bullets/BaseBullet.h"
-#include "Combat/Weapons/Pistol.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -72,13 +70,7 @@ void AMainPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (StarterWeapon)
-	{
-		 CurrentWeapon = GetWorld()->SpawnActor<ABaseWeapon>(StarterWeapon);
-
-		 const FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, true);
-		 CurrentWeapon->AttachToComponent(GetMesh(), AttachmentRules, FName("PistolHolster"));
-	}
+	CombatComponent->Initialize(this);
 }
 
 void AMainPlayer::Tick(float DeltaTime)
@@ -87,7 +79,6 @@ void AMainPlayer::Tick(float DeltaTime)
 
 	WallRunUpdate();
 	DashUpdate();
-	AimDownSightUpdate();
 }
 #pragma endregion Base Functions
 
@@ -145,7 +136,7 @@ void AMainPlayer::Look(const FInputActionValue& Value)
 
 void AMainPlayer::StartJump()
 {
-	if (bIsAiming) {return;}
+	if (CombatComponent->bIsAiming) {return;}
 
 	if (bIsWallRunning)
 	{
@@ -311,7 +302,7 @@ void AMainPlayer::CheckDashCollision()
 #pragma region Wallrun
 void AMainPlayer::WallRunUpdate()
 {
-	if (bWallRunSupressed || bIsAiming) return;
+	if (bWallRunSupressed || CombatComponent->bIsAiming) return;
 
 	const FVector ActorLocation = GetActorLocation();
 	const FVector RightVector = GetActorRightVector();
@@ -379,7 +370,7 @@ bool AMainPlayer::WallRunMovement(const FVector& Start, const FVector& End, floa
 			if (!ForwardVector.IsZero())
 			{
 				const FRotator TargetRotation = FRotationMatrix::MakeFromX(ForwardVector.GetSafeNormal()).Rotator();
-				const FRotator NewRotation = FMath::RInterpTo(GetActorRotation(), TargetRotation, GetWorld()->GetDeltaSeconds(), AimDownSightSpeed);
+				const FRotator NewRotation = FMath::RInterpTo(GetActorRotation(), TargetRotation, GetWorld()->GetDeltaSeconds(), 5.0f);
 
 				SetActorRotation(NewRotation);
 
@@ -445,136 +436,4 @@ void AMainPlayer::ResetWallRunSupress()
 	bWallRunSupressed = false;
 }
 #pragma endregion Wallrun
-
-#pragma region Aim Down Sight
-void AMainPlayer::AimDownSight()
-{
-	if (CurrentWeapon == nullptr) {return;}
-
-	if (bIsWallRunning)
-	{
-		EndWallRun(0.2f);
-	}
-	
-	bIsAiming = true;
-
-	EquipWeapon();
-
-	// Update dash parameters for aiming
-	DashDistance = AimingDashDistance;
-	DashTime = AimingDashTime;
-
-	// Adjust movement settings for aiming
-	UCharacterMovementComponent* PlayerMovement = GetCharacterMovement();
-	
-	PlayerMovement->MaxWalkSpeed = AimingPlayerSpeed;
-	PlayerMovement->bOrientRotationToMovement = false;
-}
-
-void AMainPlayer::AimDownSightUpdate()
-{
-	const float DeltaTime = GetWorld()->GetDeltaSeconds();
-	const float LerpAlpha = FMath::Clamp((AimTimeElapsed + DeltaTime) / AimDownSightTime, 0.0f, 1.0f);
-
-	// Determine the target values based on aiming state
-	const float TargetArmLength = bIsAiming ? AimingArmLength : DefaultArmLength;
-	const FVector TargetSocketOffset = bIsAiming ? AimingCameraOffset : DefaultCameraOffset;
-
-	// Update AimTimeElapsed
-	if (bIsAiming || LerpAlpha > 0.0f)
-	{
-		CameraBoom->TargetArmLength = FMath::Lerp(CameraBoom->TargetArmLength, TargetArmLength, LerpAlpha);
-		CameraBoom->SocketOffset = FMath::Lerp(CameraBoom->SocketOffset, TargetSocketOffset, LerpAlpha);
-		
-		// Reset AimTimeElapsed when the lerp is complete and not aiming
-		if (!bIsAiming && LerpAlpha >= 1.0f)
-		{
-			AimTimeElapsed = 0.0f;
-		}
-	}
-}
-
-void AMainPlayer::StopAiming()
-{
-	bIsAiming = false;
-
-	HolsterWeapon();
-
-	// Reset dash parameters
-	DashDistance = DefaultDashDistance;
-	DashTime = DefaultDashTime;
-
-	// Adjust movement settings to default
-	UCharacterMovementComponent* PlayerMovement = GetCharacterMovement();
-
-	PlayerMovement->MaxWalkSpeed = DefaultPlayerSpeed;
-	PlayerMovement->bOrientRotationToMovement = true;
-}
-
-void AMainPlayer::EquipWeapon() const
-{
-	if (CurrentWeapon)
-	{
-		const FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, true);
-		CurrentWeapon->AttachToComponent(GetMesh(), AttachmentRules, FName("WeaponSocket"));
-	}
-}
-
-void AMainPlayer::HolsterWeapon() const
-{
-	if (CurrentWeapon)
-	{
-		const FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, true);
-		CurrentWeapon->AttachToComponent(GetMesh(), AttachmentRules, FName("PistolHolster"));
-	}
-}
-
-#pragma endregion Aim Down Sight
-
-#pragma region Shooting
-void AMainPlayer::Shoot()
-{
-	if (CurrentWeapon && CurrentWeapon->WeaponBullet && bIsAiming)
-	{
-		const float CurrentTime = GetWorld()->GetTimeSeconds();
-
-		if (CurrentTime - TimeSinceLastFired >= CurrentWeapon->FireRate)
-		{
-			FireBullet();
-			TimeSinceLastFired = CurrentTime;
-
-			GetWorld()->GetTimerManager().SetTimer(FireBulletTimerHandle, this, &AMainPlayer::FireBullet, CurrentWeapon->FireRate, true);
-		}
-	}
-}
-
-void AMainPlayer::StopShooting()
-{
-	GetWorld()->GetTimerManager().ClearTimer(FireBulletTimerHandle);
-}
-
-void AMainPlayer::FireBullet() 
-{
-	const APlayerCameraManager* PlayerCamera = GetWorld()->GetFirstPlayerController()->PlayerCameraManager;
-
-	const FVector Start = PlayerCamera->GetCameraLocation() + (PlayerCamera->GetCameraRotation().Vector() * 300.0f);
-	const FVector End = (PlayerCamera->GetCameraRotation().Vector() * 10000.0f) + Start;
-
-	FHitResult Hit;
-
-	const bool bHit = GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility);
-
-	const FVector TargetPoint = bHit ? Hit.Location : End;
-	const FVector Direction = (TargetPoint - CurrentWeapon->BulletSpawnPoint->GetComponentLocation()).GetSafeNormal();
-
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.Instigator = this;   // Setting the player as the instigator
-	SpawnParams.Owner = this;  
-	
-	GetWorld()->SpawnActor<ABaseBullet>(CurrentWeapon->WeaponBullet, CurrentWeapon->BulletSpawnPoint->GetComponentLocation(), Direction.Rotation(), SpawnParams);
-
-
-	GetWorld()->GetFirstPlayerController()->PlayerCameraManager->StartCameraShake(PistolFireEffect, 1.0f);
-}
-#pragma endregion Shooting
 

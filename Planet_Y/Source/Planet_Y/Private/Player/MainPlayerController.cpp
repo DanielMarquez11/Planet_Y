@@ -64,20 +64,20 @@ void AMainPlayerController::HandleDash()
 
 void AMainPlayerController::HandleAimDownSight()
 {
-	PlayerRef->AimDownSight();
+	CombatComponent->AimDownSight();
 }
 
 void AMainPlayerController::HandleStopAiming()
 {
-	PlayerRef->StopAiming();
+	CombatComponent->StopAiming();
 }
 
 void AMainPlayerController::HandleStartShooting()
 {
-	PlayerRef->Shoot();
+	CombatComponent->Shoot();
 }
 
 void AMainPlayerController::HandleStopShooting()
 {
-	PlayerRef->StopShooting();
+	CombatComponent->StopShooting();
 }

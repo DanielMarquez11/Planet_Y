@@ -16,7 +16,6 @@ enum class EMovementAbilities : uint8
 };
 
 class ACheckpoint;
-class ABaseWeapon;
 class USpringArmComponent;
 class UCameraComponent;
 struct FInputActionValue;
@@ -34,9 +33,6 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(BlueprintReadOnly)
-	EMovementAbilities CurrentMovementAbility;
-
 	//Player Life
 	virtual void TakeDamageToHealth_Implementation(float Damage) override;
 	virtual void Die_Implementation() override;
@@ -45,6 +41,9 @@ public:
 	ACheckpoint* LastCheckpoint;
 
 	// Base Movement
+	UPROPERTY(BlueprintReadOnly)
+	EMovementAbilities CurrentMovementAbility;
+	
 	void Move(const FInputActionValue& InputActionValue);
 	void Look(const FInputActionValue& Value);
 	
@@ -59,6 +58,22 @@ public:
 	virtual void OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode) override;
 	virtual void Landed(const FHitResult& Hit) override;
 
+	// Default Player Values
+	UPROPERTY(EditAnywhere, Category = "DefaultMovementValues")
+	float DefaultPlayerSpeed = 850.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Dash")
+	float DefaultDashDistance = 900.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Dash")
+	float DefaultDashTime = 0.3f;
+
+	UPROPERTY(EditAnywhere)
+	float DefaultArmLength = 450.0f;
+
+	UPROPERTY(EditAnywhere)
+	FVector DefaultCameraOffset = FVector(0.0f, 0.0f, 45.0f);
+	
 	// Dash
 	void Dash();	
 	void DashUpdate();
@@ -66,6 +81,9 @@ public:
 	void ResetDashCooldown();
 	void CheckDashCollision();
 
+	float DashDistance;
+	float DashTime;
+	
 	// Wall Running
 	bool WallRunMovement(const FVector& Start, const FVector& End, float Direction);
 	void WallRunUpdate();
@@ -77,29 +95,20 @@ public:
 	
 	void SupressWallRun(float Cooldown);
 	void ResetWallRunSupress();
-	
 	bool IsValidWallVector(const FVector& InVector) const;
 
-	// Aim Down Sight
-	void AimDownSight();
-	void AimDownSightUpdate();
-	void StopAiming();
+	bool bIsWallRunning = false;
 
-	UPROPERTY(BlueprintReadOnly)
-	bool bIsAiming = false;
-
-	// Combat
-	void EquipWeapon() const;
-	void HolsterWeapon() const;
-	
-	void Shoot();
-	void StopShooting();
-	
-	void FireBullet();
-
+	// Components
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta = (AllowPrivateAccess = "true"))
 	UCombatComponent* CombatComponent;
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	USpringArmComponent* CameraBoom;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	UCameraComponent* FollowCamera;
+
 private:
 
 	// Player Life
@@ -109,30 +118,16 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "PlayerLife")
 	float Health;
 
-	// Components
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	USpringArmComponent* CameraBoom;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	UCameraComponent* FollowCamera;
-	
+	// Base Movement
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 	UAnimMontage* DoubleJumpMontage;
 
-	// Base Movement
 	UPROPERTY(EditAnywhere, Category = "DefaultMovementValues")
 	float BaseGravity = 2.5f;
 
 	UPROPERTY(EditAnywhere, Category = "DefaultMovementValues")
 	float PlayerRotationRate = 600.0f;
 
-	UPROPERTY(EditAnywhere, Category = "DefaultMovementValues")
-	float DefaultPlayerSpeed = 850.0f;
-
-	UPROPERTY(EditAnywhere, Category = "DefaultMovementValues")
-	float AimingPlayerSpeed = 450.0f;
-
-	// Jumps
 	UPROPERTY(EditAnywhere, Category = "DefaultMovementValues")
 	float JumpHeight = 1100.0f;
 
@@ -143,21 +138,6 @@ private:
 	float CoyoteTime = 0.3f;
 
 	// Dash
-	float DashDistance;
-	float DashTime;
-
-	UPROPERTY(EditAnywhere, Category = "Dash")
-	float DefaultDashDistance = 900.0f;
-
-	UPROPERTY(EditAnywhere, Category = "Dash")
-	float AimingDashDistance = 500.0f;
-
-	UPROPERTY(EditAnywhere, Category = "Dash")
-	float DefaultDashTime = 0.3f;
-
-	UPROPERTY(EditAnywhere, Category = "Dash")
-	float AimingDashTime = 0.20f;
-
 	UPROPERTY(EditAnywhere, Category = "Dash")
 	float DashCooldown;
 
@@ -185,41 +165,7 @@ private:
 	float WallRunJumpDistance = 500;
 
 	FVector WallRunNormal;
-	
 	bool bWallRunSupressed = false;
-	bool bTurnPlayerForward = false;
-	bool bIsWallRunning = false;
-
-	// Aim Down Sight
-	UPROPERTY(EditAnywhere, Category = "AimDownSight")
-	float DefaultArmLength = 450.0f;
-
-	UPROPERTY(EditAnywhere, Category = "AimDownSight")
-	float AimingArmLength = 220.0f;
-
-	UPROPERTY(EditAnywhere, Category = "AimDownSight")
-	FVector DefaultCameraOffset = FVector(0.0f, 0.0f, 45.0f);
-
-	UPROPERTY(EditAnywhere, Category = "AimDownSight")
-	FVector AimingCameraOffset = FVector(0.0f, 85.0f, 50.0f);
-
-	UPROPERTY(EditAnywhere, Category = "AimDownSight")
-	float AimDownSightTime = 0.2f;
-
-	UPROPERTY(EditAnywhere, Category = "AimDownSight")
-	float AimDownSightSpeed = 5.0f;
-	
-	float AimTimeElapsed;
-
-	// Combat
-	UPROPERTY(EditAnywhere, Category = "Weapon")
-	TSubclassOf<ABaseWeapon> StarterWeapon;
-	
-	UPROPERTY(VisibleAnywhere, Category = "Weapon")
-	ABaseWeapon* CurrentWeapon;
-
-	FTimerHandle FireBulletTimerHandle;
-	float TimeSinceLastFired;
 
 	// Camera Effects
 	UPROPERTY(EditDefaultsOnly, Category = "CameraEffects")
@@ -230,10 +176,8 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "CameraEffects")
 	TSubclassOf<UCameraShakeBase> DoubleJumpEffect;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "CameraEffects")
-	TSubclassOf<UCameraShakeBase> PistolFireEffect;
 
 	UPROPERTY(EditDefaultsOnly, Category = "CameraEffects")
 	TSubclassOf<UCameraShakeBase> DashEffect;
 };
+
