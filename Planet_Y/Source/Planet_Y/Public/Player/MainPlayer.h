@@ -6,6 +6,8 @@
 #include "Interfaces/Damageable.h"
 #include "MainPlayer.generated.h"
 
+class UPlayerLifeComponent;
+
 UENUM(BlueprintType)
 enum class EMovementAbilities : uint8
 {
@@ -35,10 +37,6 @@ public:
 
 	//Player Life
 	virtual void TakeDamageToHealth_Implementation(float Damage) override;
-	virtual void Die_Implementation() override;
-
-	UPROPERTY(VisibleAnywhere, Category = "PlayerLife")
-	ACheckpoint* LastCheckpoint;
 
 	// Base Movement
 	UPROPERTY(BlueprintReadOnly)
@@ -102,6 +100,9 @@ public:
 	// Components
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta = (AllowPrivateAccess = "true"))
 	UCombatComponent* CombatComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta = (AllowPrivateAccess = "true"))
+	UPlayerLifeComponent* PlayerLifeComponent;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraBoom;
@@ -110,13 +111,6 @@ public:
 	UCameraComponent* FollowCamera;
 
 private:
-
-	// Player Life
-	UPROPERTY(EditAnywhere, Category = "PlayerLife")
-	float MaxHealth = 100.0f;
-	
-	UPROPERTY(VisibleAnywhere, Category = "PlayerLife")
-	float Health;
 
 	// Base Movement
 	UPROPERTY(EditDefaultsOnly, Category = "Components")

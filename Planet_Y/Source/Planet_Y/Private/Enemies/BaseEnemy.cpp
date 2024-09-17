@@ -18,11 +18,11 @@ void ABaseEnemy::TakeDamageToHealth_Implementation(float Damage)
 	
 	if (Health <= 0.0f)
 	{
-		Execute_Die(this);
+		Die();
 	}
 }
 
-void ABaseEnemy::Die_Implementation()
+void ABaseEnemy::Die()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Red, "Enemy Got Killed");
 }

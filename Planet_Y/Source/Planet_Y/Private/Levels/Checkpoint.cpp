@@ -1,6 +1,7 @@
 #include "Levels/Checkpoint.h"
 #include "Components/SphereComponent.h"
 #include "Player/MainPlayer.h"
+#include "Player/PlayerLifeComponent.h"
 
 ACheckpoint::ACheckpoint()
 {
@@ -22,7 +23,7 @@ void ACheckpoint::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActo
 {
 	if (AMainPlayer* Player = Cast<AMainPlayer>(OtherActor))
 	{
-		Player->LastCheckpoint = this;
+		Player->PlayerLifeComponent->LastCheckpoint = this;
 	}
 }
 

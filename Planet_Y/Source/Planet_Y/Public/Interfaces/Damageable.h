@@ -18,7 +18,4 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void TakeDamageToHealth(float Damage);
-
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	void Die();
 };

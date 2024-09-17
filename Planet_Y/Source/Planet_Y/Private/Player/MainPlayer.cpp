@@ -4,8 +4,8 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Levels/Checkpoint.h"
 #include "Player/CombatComponent.h"
+#include "Player/PlayerLifeComponent.h"
 
 #pragma region Base Functions
 AMainPlayer::AMainPlayer()
@@ -59,11 +59,9 @@ AMainPlayer::AMainPlayer()
 	
 	FollowCamera->bUsePawnControlRotation = false;
 
-	// Combat Component
+	// Player Components
 	CombatComponent = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComponent"));
-
-	// Player Life
-	Health = MaxHealth;
+	PlayerLifeComponent = CreateDefaultSubobject<UPlayerLifeComponent>(TEXT("PlayerLifeComponent"));
 }
 
 void AMainPlayer::BeginPlay()
@@ -71,6 +69,7 @@ void AMainPlayer::BeginPlay()
 	Super::BeginPlay();
 
 	CombatComponent->Initialize(this);
+	PlayerLifeComponent->Initialize(this);
 }
 
 void AMainPlayer::Tick(float DeltaTime)
@@ -80,29 +79,9 @@ void AMainPlayer::Tick(float DeltaTime)
 	WallRunUpdate();
 	DashUpdate();
 }
+
+void AMainPlayer::TakeDamageToHealth_Implementation(float Damage) {PlayerLifeComponent->TakeDamage(Damage);}
 #pragma endregion Base Functions
-
-#pragma region Player Life
-void AMainPlayer::TakeDamageToHealth_Implementation(float Damage)
-{
-	Health = Health - Damage;
-
-	if (Health <= 0.0f)
-	{
-		Execute_Die(this);
-	}
-}
-
-void AMainPlayer::Die_Implementation()
-{
-	if (LastCheckpoint)
-	{
-		SetActorLocation(LastCheckpoint->GetActorLocation());
-
-		Health = MaxHealth;
-	}
-}
-#pragma endregion Player Life
 
 #pragma region Base Movement
 void AMainPlayer::Move(const FInputActionValue& Value)
@@ -184,10 +163,7 @@ void AMainPlayer::CoyoteTimeEnded()
 {
 	bCanJump = false;
 
-	if (!bHasDoubleJumped)
-	{
-		bCanDoubleJump = true;
-	}
+	if (!bHasDoubleJumped) { bCanDoubleJump = true; }
 }
 
 void AMainPlayer::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode)
@@ -222,17 +198,10 @@ void AMainPlayer::Landed(const FHitResult& Hit)
 #pragma region Dash
 void AMainPlayer::Dash()
 {
-	if (CurrentMovementAbility == EMovementAbilities::Dashing || !bCanDash)
-	{
-		return;
-	}
-	
 	const bool bIsInAir = !GetCharacterMovement()->IsMovingOnGround();
-
-	if (bIsInAir && bHasAirDashed)
-	{
-		return;
-	}
+	
+	if (CurrentMovementAbility == EMovementAbilities::Dashing || !bCanDash) { return; }
+	if (bIsInAir && bHasAirDashed) { return; }
 
 	CurrentMovementAbility = EMovementAbilities::Dashing;
 	
@@ -338,8 +307,6 @@ void AMainPlayer::StartWallRun(const bool Right, const bool Left)
 	if (Right) {CurrentMovementAbility = EMovementAbilities::WallRunningRight; }
 	if (Left) {CurrentMovementAbility = EMovementAbilities::WallRunningLeft; }
 
-
-
 	// Set movement values when start wall run
 	UCharacterMovementComponent* Movement = GetCharacterMovement();
 	
@@ -425,7 +392,6 @@ bool AMainPlayer::IsValidWallVector(const FVector& InVector) const
 void AMainPlayer::SupressWallRun(float WallRunCooldown)
 {
 	bWallRunSupressed = true;
-
 	
 	FTimerHandle WallRunSupressTimer;
 	GetWorld()->GetTimerManager().SetTimer(WallRunSupressTimer, this, &AMainPlayer::ResetWallRunSupress, WallRunCooldown);

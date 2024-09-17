@@ -26,6 +26,6 @@ protected:
 	float Health;
 
 	virtual void TakeDamageToHealth_Implementation(float Damage) override;
-	virtual void Die_Implementation() override;
+	void Die();
 };
 
