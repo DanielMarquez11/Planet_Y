@@ -4,6 +4,7 @@
 #include "GameFramework/PlayerController.h"
 #include "MainPlayerController.generated.h"
 
+class UCombatComponent;
 struct FInputActionValue;
 class UInputMappingContext;
 class UInputAction;
@@ -61,5 +62,8 @@ private:
 
 	UPROPERTY()
 	AMainPlayer* PlayerRef;
+
+	UPROPERTY()
+	UCombatComponent* CombatComponent;
 };
 

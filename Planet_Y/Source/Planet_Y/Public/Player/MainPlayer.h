@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "CombatComponent.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/Damageable.h"
 #include "MainPlayer.generated.h"
@@ -95,6 +96,9 @@ public:
 	void StopShooting();
 	
 	void FireBullet();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta = (AllowPrivateAccess = "true"))
+	UCombatComponent* CombatComponent;
 	
 private:
 

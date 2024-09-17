@@ -7,6 +7,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Levels/Checkpoint.h"
+#include "Player/CombatComponent.h"
 
 #pragma region Base Functions
 AMainPlayer::AMainPlayer()
@@ -59,6 +60,9 @@ AMainPlayer::AMainPlayer()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	
 	FollowCamera->bUsePawnControlRotation = false;
+
+	// Combat Component
+	CombatComponent = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComponent"));
 
 	// Player Life
 	Health = MaxHealth;

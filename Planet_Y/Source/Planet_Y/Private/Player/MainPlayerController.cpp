@@ -20,6 +20,7 @@ void AMainPlayerController::BeginPlay()
 	if (AMainPlayer* MyCharacter = Cast<AMainPlayer>(GetPawn()))
 	{
 		PlayerRef = MyCharacter;
+		CombatComponent = PlayerRef->CombatComponent;
 	}
 }
 
