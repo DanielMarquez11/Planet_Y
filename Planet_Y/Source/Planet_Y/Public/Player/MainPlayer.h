@@ -133,7 +133,7 @@ private:
 
 	// Dash
 	UPROPERTY(EditAnywhere, Category = "Dash")
-	float DashCooldown;
+	float DashCooldown = 0.5f;
 
 	UPROPERTY(EditAnywhere, Category = "Dash")
 	float DashEndVelocity = 750.0f;

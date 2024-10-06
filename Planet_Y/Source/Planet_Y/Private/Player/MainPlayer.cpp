@@ -67,7 +67,7 @@ AMainPlayer::AMainPlayer()
 void AMainPlayer::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	CombatComponent->Initialize(this);
 	PlayerLifeComponent->Initialize(this);
 }
@@ -198,7 +198,9 @@ void AMainPlayer::Landed(const FHitResult& Hit)
 #pragma region Dash
 void AMainPlayer::Dash()
 {
-	const bool bIsInAir = !GetCharacterMovement()->IsMovingOnGround();
+	UCharacterMovementComponent* Movement = GetCharacterMovement();
+	
+	const bool bIsInAir = !Movement->IsMovingOnGround();
 	
 	if (CurrentMovementAbility == EMovementAbilities::Dashing || !bCanDash) { return; }
 	if (bIsInAir && bHasAirDashed) { return; }
@@ -211,8 +213,8 @@ void AMainPlayer::Dash()
 	DashTimeElapsed = 0.0f;
 
 	// Stop current movement and disable gravity during dash
-	GetCharacterMovement()->StopMovementImmediately();
-	GetCharacterMovement()->GravityScale = 0;
+	Movement->StopMovementImmediately();
+	Movement->GravityScale = 0;
 
 	const FVector MovementInput = GetLastMovementInputVector();
 	const FVector DashVector = MovementInput.IsNearlyZero() ? GetActorForwardVector() : MovementInput.GetSafeNormal();
