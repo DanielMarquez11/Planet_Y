@@ -12,6 +12,7 @@ UENUM(BlueprintType)
 enum class EMovementAbilities : uint8
 {
 	Moving,
+	Jumping,
 	Dashing,
 	WallRunningRight,
 	WallRunningLeft
@@ -49,6 +50,9 @@ public:
 	void DoubleJump();
 	void CoyoteTimeEnded();
 
+	UPROPERTY(BlueprintReadOnly)
+	bool bHasJumped = false;
+	
 	bool bCanJump = true;
 	bool bCanDoubleJump = false;
 	bool bHasDoubleJumped = false;

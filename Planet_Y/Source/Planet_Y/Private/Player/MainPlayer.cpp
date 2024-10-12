@@ -133,6 +133,7 @@ void AMainPlayer::StartJump()
 	{
 		LaunchCharacter(FVector(0.0f, 0.0f, JumpHeight), false, true);
 
+		bHasJumped = true;
 		bCanJump = false;
 		bCanDoubleJump = true;
 
@@ -183,6 +184,7 @@ void AMainPlayer::Landed(const FHitResult& Hit)
 {
 	Super::Landed(Hit);
 
+	bHasJumped = false;
 	bCanJump = true;
 	bHasDoubleJumped = false;
 
