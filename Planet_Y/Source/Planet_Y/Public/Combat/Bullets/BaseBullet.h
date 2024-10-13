@@ -40,7 +40,7 @@ private:
 
 	// Bullet Properties
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
-	float BulletSpeed = 6000.0f;
+	float BulletSpeed = 15000.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	float LifeTime = 2.0f;
