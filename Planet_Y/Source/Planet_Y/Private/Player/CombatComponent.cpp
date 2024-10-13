@@ -24,13 +24,6 @@ void UCombatComponent::Initialize(AMainPlayer* Player)
 	}
 }
 
-void UCombatComponent::BeginPlay()
-{
-	Super::BeginPlay();
-	
-
-}
-
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);

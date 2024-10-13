@@ -19,8 +19,6 @@ public:
 	UCombatComponent();
 
 	void Initialize(AMainPlayer* Player);
-	
-	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
 	// Aim Down Sight
