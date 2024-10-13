@@ -14,19 +14,21 @@ void UCombatComponent::Initialize(AMainPlayer* Player)
 {
 	MainPlayer = Player;
 	PlayerMovement = MainPlayer->GetCharacterMovement();
+
+	if (StarterWeapon)
+	{
+		CurrentWeapon = GetWorld()->SpawnActor<ABaseWeapon>(StarterWeapon);
+
+		const FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, true);
+		CurrentWeapon->AttachToComponent(MainPlayer->GetMesh(), AttachmentRules, FName("PistolHolster"));
+	}
 }
 
 void UCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	if (StarterWeapon)
-	{
-		CurrentWeapon = GetWorld()->SpawnActor<ABaseWeapon>(StarterWeapon);
 
-		const FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, true);
-		CurrentWeapon->AttachToComponent(MainPlayer->GetMesh(), AttachmentRules, FName("PistolHolster"));
-	}
 }
 
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -148,7 +150,7 @@ void UCombatComponent::EquipWeapon() const
 {
 	if (CurrentWeapon)
 	{
-		const FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, true);
+		const FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, true);
 		CurrentWeapon->AttachToComponent(MainPlayer->GetMesh(), AttachmentRules, FName("WeaponSocket"));
 	}
 }
@@ -157,7 +159,7 @@ void UCombatComponent::HolsterWeapon() const
 {
 	if (CurrentWeapon)
 	{
-		const FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, true);
+		const FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, true);
 		CurrentWeapon->AttachToComponent(MainPlayer->GetMesh(), AttachmentRules, FName("PistolHolster"));
 	}
 }
