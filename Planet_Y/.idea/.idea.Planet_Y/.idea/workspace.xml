@@ -36,7 +36,8 @@
     &quot;C++ Project.UE5.executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;AIC-To-C++&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;Player-Healthbar-UI&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -459,6 +460,9 @@
       <workItem from="1725033309465" duration="444000" />
       <workItem from="1726669042650" duration="131000" />
       <workItem from="1726675813490" duration="86000" />
+      <workItem from="1728891420264" duration="21000" />
+      <workItem from="1728891448264" duration="7000" />
+      <workItem from="1728891463703" duration="7000" />
     </task>
     <servers />
   </component>
